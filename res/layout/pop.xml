@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@drawable/bubble_background"
+	android:layout_width="wrap_content" android:layout_height="wrap_content"
+	android:paddingLeft="5px" android:paddingTop="5px"
+	android:paddingRight="5px" android:paddingBottom="20px">
+	<Button 
+		android:id="@+id/send_command"
+		android:layout_width="50dip"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:layout_centerVertical="true"
+		android:layout_marginRight="5dip"
+		android:layout_marginLeft="3dip"
+		android:text="@string/command"/>
+	<TextView android:id="@+id/map_bubbleTitle" android:ellipsize="marquee"
+		style="@style/map_BubblePrimary" 
+		android:layout_width="100dip"
+		android:layout_height="wrap_content" 
+		android:gravity="center_horizontal|center_vertical"
+		android:singleLine="true"
+		android:layout_toRightOf="@id/send_command"
+		android:layout_alignTop="@id/send_command"/>
+	<TextView android:id="@+id/map_bubbleText" style="@style/map_BubbleSecondary"
+		android:layout_width="100dip" 
+		android:layout_height="wrap_content"
+		android:singleLine="false"
+		android:gravity="center_horizontal|center_vertical"
+		android:layout_alignLeft="@id/map_bubbleTitle"
+		android:layout_alignBottom="@id/send_command" />
+	<Button 
+		android:id="@+id/warning"
+		android:layout_width="50dip"
+		android:layout_height="wrap_content"
+		android:layout_centerVertical="true"
+		android:layout_toRightOf="@id/map_bubbleTitle"
+		android:layout_alignTop="@id/send_command"
+		android:layout_marginLeft="5dip"
+		android:layout_marginRight="3dip"
+		android:text="@string/warning"/>	
+</RelativeLayout>

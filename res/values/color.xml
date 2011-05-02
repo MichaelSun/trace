@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<drawable name="white">#FFFFFF</drawable>
+	
+	<drawable name="gray1">#AAAAAA</drawable>
+	<drawable name="gray2">#999999</drawable>
+	<drawable name="gray3">#BBBBBB</drawable>
+	<drawable name="gray4">#333333</drawable>
+	<drawable name="gray5">#666666</drawable>
+	<drawable name="gray6">#F2F2F2</drawable>
+	<drawable name="gray7">#DEDEDE</drawable>
+	<drawable name="gray8">#c3c3c1</drawable>
+	
+	<color name="welcome_begin">#5A5A5A</color>
+	<color name="welcome_end">#282828</color>
+	<color name="warning_color">#7f00ff00</color>
+</resources>

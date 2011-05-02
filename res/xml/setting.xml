@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory 
+		android:title="@string/app_setting">
+		<!-- Preference 
+			android:title="@string/refresh_delay" 
+			android:key="@string/refresh_rate">
+		</Preference -->
+		<CheckBoxPreference 
+			android:title="@string/line_draw" 
+			android:key="@string/line_if_draw" 
+			android:summaryOn="@string/setting_active" 
+			android:summaryOff="@string/setting_inactive"
+			android:defaultValue="false">
+		</CheckBoxPreference>
+		
+		<Preference
+			android:title="@string/refresh_delay"
+			android:key="@string/refresh_rate">
+		</Preference>
+	</PreferenceCategory>
+	
+</PreferenceScreen>

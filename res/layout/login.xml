@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent"
+	android:background="@drawable/welcome_bg">
+	<include android:id="@+id/login_activity_title"
+		layout="@layout/title_bar" />
+    <ScrollView 
+    	android:layout_width="fill_parent" 
+    	android:layout_height="fill_parent" 
+    	android:layout_below="@id/login_activity_title"
+    	android:fillViewport="true">
+        <LinearLayout  
+        	android:layout_width="fill_parent" 
+        	android:layout_height="wrap_content"
+        	android:orientation="vertical">
+        	<RelativeLayout android:id="@+id/RelativeLayout01"  
+				android:layout_width="fill_parent" 
+				android:layout_height="wrap_content" 
+				android:layout_marginLeft="5.0px" 
+				android:layout_marginTop="20.0px" 
+				android:layout_marginRight="5.0px">
+		       <EditText android:id="@+id/phone_editor" 
+		            android:layout_width="fill_parent" 
+		            android:layout_height="wrap_content" 
+		            android:background="@drawable/input_login" 
+		            android:paddingLeft="85.0sp" 
+		            android:paddingTop="10.0sp" 
+		            android:paddingBottom="10.0sp" 
+		            android:paddingRight="30.0sp"
+		            android:layout_marginLeft="5.0dip" 
+		            android:layout_marginRight="5.0dip"
+		            android:layout_marginBottom="10dip" 
+		            android:layout_alignParentTop="true" 
+		            android:singleLine="true"
+		            android:inputType="number"/>
+		       <TextView android:id="@+id/TextView01" 
+		       		android:layout_width="wrap_content" 
+		       		android:layout_height="wrap_content" 
+		       		android:textColor="@drawable/gray1" 
+		       		android:gravity="center_vertical" 
+		       		android:textSize="18.0dip"
+		       		android:paddingLeft="10.0sp" 
+		       		android:layout_marginRight="15.0sp" 
+		       		android:text="@string/login_account" 
+		       		android:layout_alignLeft="@id/phone_editor" 
+		       		android:layout_alignTop="@id/phone_editor" 
+		       		android:layout_alignBottom="@id/phone_editor" />
+		   </RelativeLayout>
+         
+           <Button android:id="@+id/do_login"
+           		android:layout_width="fill_parent"
+           		android:layout_height="wrap_content"
+           		android:layout_marginLeft="8.0dip" 
+            	android:layout_marginTop="30.0dip" 
+            	android:layout_marginRight="8.0dip"
+            	android:layout_marginBottom="10.0dip" 
+            	android:gravity="center"
+           		android:text="@string/login"
+           		android:textColor="#ff3f3f3f" 
+           		android:textSize="18sp"
+           		android:background="@drawable/login_loginbtn_selector"
+           		/>
+           </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

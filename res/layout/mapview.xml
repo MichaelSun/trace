@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+  
+          http://www.apache.org/licenses/LICENSE-2.0
+  
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- Demonstrates use of the com.google.android.maps.MapView.
+     See corresponding Java code com.example.android.apis.view.MapViewDemo.java. -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent">
+    <!-- haojie key : 0lvUcAnAWeYraTcktuRI8LmQcumhJL8jZe86sNQ -->
+    <!-- sun guoqing key : 0WYabry-9yhhjPvLpo3R1J0egF6_gFCD8LGkqGA -->
+    <com.google.android.maps.MapView
+        android:id="@+id/map"
+        android:layout_width="fill_parent" 
+        android:layout_height="fill_parent"
+        android:enabled="true"
+        android:clickable="true"
+        android:apiKey="0WYabry-9yhhjPvLpo3R1J0egF6_gFCD8LGkqGA"
+        />
+        
+    <ImageButton
+    	android:id="@+id/trace_list_button"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:layout_marginLeft="20dip"
+    	android:layout_marginBottom="20dip"
+    	android:layout_alignParentLeft="true"
+    	android:layout_alignParentBottom="true"
+    	android:background="@drawable/tarce_list_button">
+    </ImageButton>
+</RelativeLayout>

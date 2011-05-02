@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="login_phone">login_phone</string>
+	
+	<string name="line_if_draw">line_draw</string>
+	<string name="refresh_rate">refresh_rate</string>
+</resources>

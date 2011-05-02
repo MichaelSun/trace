@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  	xmlns:android="http://schemas.android.com/apk/res/android"
+  	android:layout_width="fill_parent"
+  	android:layout_height="46dp"
+    android:background="@drawable/global_titlebar">
+    <!-- Button
+		android:id="@+id/title_bar_left_button"
+		android:layout_height="wrap_content" 
+		android:layout_width="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:layout_centerVertical="true"
+		android:gravity="center"
+		android:layout_gravity="center_vertical"
+		android:layout_marginLeft="5dp"
+		android:layout_marginRight="3dip"
+		android:background="@drawable/title_action_selector"
+		android:textColor="#ffffff"
+		android:textSize="14sp"
+		android:visibility="invisible">
+  	</Button>
+  	
+		<Button
+			android:id="@+id/title_bar_right_align_button"
+			android:layout_height="wrap_content" 
+			android:layout_width="wrap_content"
+			android:background="@drawable/title_action_selector"
+			android:textColor="@drawable/white"
+			android:gravity="center"
+			android:textSize="14sp"
+			android:layout_marginRight="5dip"
+			android:layout_gravity="center_vertical"
+			android:layout_marginLeft="3dip"
+			android:visibility="invisible">
+		</Button -->
+
+		<TextView 
+		    android:id="@+id/title_bar_center_text"
+			android:layout_height="fill_parent" 
+			android:layout_width="fill_parent"
+			android:textColor="#ffffff"
+			android:lines="1"
+			android:textSize="20dp"
+			android:gravity="center_horizontal|center_vertical"
+			android:singleLine="true"
+			android:ellipsize="end"
+			android:text="@string/app_name"/> 
+</RelativeLayout>
