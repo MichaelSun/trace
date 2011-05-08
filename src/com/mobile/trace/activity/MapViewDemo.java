@@ -16,7 +16,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.CheckedTextView;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.maps.GeoPoint;
@@ -28,6 +31,7 @@ import com.google.android.maps.OverlayItem;
 import com.mobile.trace.R;
 import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
 import com.mobile.trace.utils.Config;
+import com.mobile.trace.utils.Environment;
 
 public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusChangeListener {
     private static final String TAG = "MapViewDemo";
@@ -36,6 +40,7 @@ public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusC
 	private MapView mMapView;
 	private View mSendCommand;
 	private View mWarningCommand;
+	private View mTraceInfo;
 	private View mTraceListButton;
 	
 	private Drawable mLocalMarkerImage;
@@ -47,6 +52,14 @@ public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusC
 	private ArrayList<WarningRegion> mWarningRegionList;
 	private ArrayList<TracePointInfo> mTracePointList;
 	
+	private TracePointInfo mCurrentTraceInfo;
+	
+    private View mWarningEntryView;
+    private CheckedTextView mOutWarningView;
+    private CheckedTextView mInWarningView;
+	
+    private AlertDialog mTraceListDialog;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,9 +107,10 @@ public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusC
         mTraceListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View paramView) {
-                Intent list_intent = new Intent();
-                list_intent.setClass(MapViewDemo.this, TraceInfoListActivity.class);
-                startActivity(list_intent);
+//                Intent list_intent = new Intent();
+//                list_intent.setClass(MapViewDemo.this, TraceInfoListActivity.class);
+//                startActivity(list_intent);
+                showTraceInfoListDialog();
             }
         });
     }
@@ -138,11 +152,23 @@ public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusC
             mPopupView.setVisibility(View.GONE);
         }
         if (newFocus != null) {
+            String[] titleInfo = newFocus.getTitle().split(Config.SPLITOR);
+            for (TracePointInfo trace : mTracePointList) {
+                if (trace.id.equals(titleInfo[0])) {
+                    this.mCurrentTraceInfo = trace;
+                    break;
+                } else {
+                    mCurrentTraceInfo = null;
+                }
+            }
+            
             MapView.LayoutParams geoLP = (MapView.LayoutParams) mPopupView.getLayoutParams();
             geoLP.point = newFocus.getPoint();
             mCurrentFocusGeoPoint = geoLP.point;
             TextView title = (TextView) mPopupView.findViewById(R.id.map_bubbleTitle);
-            title.setText(newFocus.getTitle());
+            title.setText(String.format(getString(R.string.title_trace_point)
+                                            , titleInfo[0]
+                                            , titleInfo[1]));
             TextView desc = (TextView) mPopupView.findViewById(R.id.map_bubbleText);
             if (newFocus.getSnippet() == null || newFocus.getSnippet().length() == 0) {
                 desc.setVisibility(View.GONE);
@@ -173,17 +199,22 @@ public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusC
         //test code 
         TracePointInfo info = new TracePointInfo();
         info.geoPoint = new GeoPoint(39971036, 116314659);
-        info.id = 1;
+        info.id = "1";
         info.title = "清水河";
         info.summary = "清水河校区";
+        info.phoneNumber = "10086";
         
         mTracePointList.add(info);
+        
+        Environment.tracePointList.clear();
+        Environment.tracePointList.addAll(mTracePointList);
     }
     
     private void initPopupView() {
         mPopupView = View.inflate(this,R.layout.pop, null);
         mSendCommand = mPopupView.findViewById(R.id.send_command);
         mWarningCommand = mPopupView.findViewById(R.id.warning);
+        mTraceInfo = mPopupView.findViewById(R.id.trace_info);
         
         mSendCommand.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -198,6 +229,54 @@ public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusC
                 showWarningRegionDialog();
             }
         });
+        
+        mTraceInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View paramView) {
+                showTraceInfoDialog(mCurrentTraceInfo);
+            }
+        });
+    }
+    
+    private void showTraceInfoDialog(TracePointInfo info) {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                                .setTitle(R.string.title_trace_info_default)
+                                .setPositiveButton(R.string.btn_locate
+                                        , new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                            }
+                                })
+                                .setNegativeButton(R.string.btn_command
+                                        , new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                                showSingleSendCommandDialog();
+                                            }
+                                })
+                                .create();
+        if (info != null) {
+            StringBuilder builder = new StringBuilder();
+            if (info.id != null) {
+                builder.append(String.format(getString(R.string.trace_info_id)
+                                                , info.id));
+                builder.append("\n");
+            }
+            if (info.phoneNumber != null) {
+                builder.append(String.format(getString(R.string.trace_info_phonenumber)
+                                                , info.phoneNumber));
+                builder.append("\n");
+            }
+            if (info.geoPoint != null) {
+                String location = String.valueOf((info.geoPoint.getLatitudeE6() * 1.0 / 10E6))
+                                    + Config.SPLITOR
+                                    + String.valueOf((info.geoPoint.getLongitudeE6() * 1.0 / 10E6));
+                builder.append(String.format(getString(R.string.trace_info_point)
+                                                , location));
+                builder.append("\n");
+            }
+            builder.append(String.format(getString(R.string.trace_info_distance), "0"));
+            dialog.setMessage(builder.toString());
+        }
+        dialog.show();
     }
     
     private void showSingleSendCommandDialog() {
@@ -220,18 +299,42 @@ public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusC
                                         }
                         })
                        .create();
+        if (mCurrentTraceInfo != null) {
+            dialog.setTitle(String.format(getString(R.string.title_send_command), mCurrentTraceInfo.id));
+        }
         dialog.show();
     }
     
     private void showWarningRegionDialog() {
-        LayoutInflater factory = LayoutInflater.from(this);
-        final View textEntryView = factory.inflate(R.layout.warning_dialog, null);
+//        if (mWarningEntryView == null) {
+            LayoutInflater factory = LayoutInflater.from(this);
+            mWarningEntryView = factory.inflate(R.layout.warning_dialog, null);
+            mOutWarningView = (CheckedTextView) mWarningEntryView.findViewById(R.id.out_warnging);
+            mInWarningView = (CheckedTextView) mWarningEntryView.findViewById(R.id.in_warnging);
+            
+            mOutWarningView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View paramView) {
+                    mOutWarningView.setChecked(true);
+                    mInWarningView.setChecked(false);
+                }
+            });
+            
+            mInWarningView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View paramView) {
+                    mOutWarningView.setChecked(false);
+                    mInWarningView.setChecked(true);
+                }
+            });
+//        }
+        
         AlertDialog dialog = new AlertDialog.Builder(this)
             .setTitle(R.string.title_warning_region)
-            .setView(textEntryView)
+            .setView(mWarningEntryView)
             .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    EditText editor = (EditText) textEntryView.findViewById(R.id.region_edit);
+                    EditText editor = (EditText) mWarningEntryView.findViewById(R.id.region_edit);
                     int distance = Integer.valueOf(editor.getText().toString());
                     for (TracePointInfo info : mTracePointList) {
                         if (info.geoPoint.getLatitudeE6() == mCurrentFocusGeoPoint.getLatitudeE6()
@@ -265,6 +368,29 @@ public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusC
             })
             .create();
         dialog.show();
+    }
+    
+    private void showTraceInfoListDialog() {
+        mTraceListDialog = new AlertDialog.Builder(this)
+                                    .setTitle(R.string.titile_trace_info_list)
+                                    .setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                        }
+                                    })
+                                    .create();
+        ListView listView = (ListView) View.inflate(this,R.layout.trace_info_list, null);
+        listView.setAdapter(new TraceInfoAdapter(this, Environment.tracePointList));
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position < Environment.tracePointList.size()) {
+                    mTraceListDialog.dismiss();
+                    TracePointInfo info = Environment.tracePointList.get(position);
+                    showTraceInfoDialog(info);
+                }
+            }
+        });
+        mTraceListDialog.setView(listView);
+        mTraceListDialog.show();
     }
     
     private void postRefreshOverlay() {

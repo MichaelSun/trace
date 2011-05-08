@@ -28,4 +28,29 @@
         android:gravity="fill_horizontal"
         android:textAppearance="?android:attr/textAppearanceMedium" />
         
+	<CheckedTextView
+	    android:id="@+id/out_warnging"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:minHeight="?android:attr/listPreferredItemHeight"
+	    android:textAppearance="?android:attr/textAppearanceMedium"
+	    android:gravity="center_vertical"
+	    android:paddingLeft="12dip"
+	    android:paddingRight="7dip"
+	    android:checkMark="@android:drawable/btn_radio"
+	    android:ellipsize="marquee"
+	   	android:text="@string/text_out_warning"/>
+
+	<CheckedTextView 
+	    android:id="@+id/in_warnging"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:minHeight="?android:attr/listPreferredItemHeight"
+	    android:textAppearance="?android:attr/textAppearanceMedium"
+	    android:gravity="center_vertical"
+	    android:paddingLeft="12dip"
+	    android:paddingRight="7dip"
+	    android:checkMark="@android:drawable/btn_radio"
+	    android:ellipsize="marquee"
+	    android:text="@string/text_in_warning"/>
 </LinearLayout>

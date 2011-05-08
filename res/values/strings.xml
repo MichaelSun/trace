@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="command">发送指令</string>
+    <string name="trace_info">终端信息</string>
     <string name="warning">警告区域</string>
     <string name="app_name">手机定位追踪系统</string>
     <string name="app_setting">系统设置</string>
@@ -8,11 +9,13 @@
     <string name="login_account">手机号码</string>
     <string name="phone_tips">手机号码</string>
     <string name="empty_phone_bumber">手机号码不能为空</string>
-    <string name="warning_region">请输入监控区域范围 : (单位：千米)</string>
+    <string name="warning_region">请输入监控区域范围(单位千米) : </string>
     
     <string name="btn_ok">确定</string>
     <string name="btn_cancel">取消</string>
     <string name="btn_send">发送</string>
+    <string name="btn_locate">定位</string>
+    <string name="btn_command">发送指令</string>
     
     <string name="title_command_send">选择发送指令</string>
     <string name="title_warning_region">报警区域设置</string>
@@ -24,5 +27,19 @@
     <string name="line_draw">被控点轨迹连线</string>
     <string name="setting_active">启用</string>
     <string name="setting_inactive">关闭</string>
+    
+    <string name="trace_info_id" formatted="false">终端ID : %s</string>
+    <string name="trace_info_phonenumber" formatted="false">电话 : %s</string>
+    <string name="trace_info_point" formatted="false">终端经纬度 : %s</string>
+    <string name="trace_info_distance" formatted="false">与主控终端距离 : %s</string>
+    
+    <string name="title_send_command" formatted="false">选择要发送的指令：(终端 %s)</string>
+    <string name="title_trace_point" formatted="false">终端:%s, 手机号:%s</string>
+    <string name="title_trace_info_default">终端信息</string>
+    <string name="titile_trace_info_list">跟踪点信息</string>
+    
+    <string name="text_out_warning">移出报警区域报警</string>
+    <string name="text_in_warning">进入报警区域报警</string>
+    
 </resources>
 

@@ -10,6 +10,7 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
+import com.mobile.trace.utils.Config;
 
 public class PopOverlay extends ItemizedOverlay<OverlayItem> {
 	
@@ -92,7 +93,8 @@ public class PopOverlay extends ItemizedOverlay<OverlayItem> {
 		OverlayItem ret = null;
         try {
             TracePointInfo info = mTraceInfoList.get(i);
-            ret = new OverlayItem(info.geoPoint, info.title, info.summary);
+            String title = String.valueOf(info.id) + Config.SPLITOR + info.phoneNumber;
+            ret = new OverlayItem(info.geoPoint, title, info.title);
         } catch (ArrayIndexOutOfBoundsException ex) {
         }
         return ret;
