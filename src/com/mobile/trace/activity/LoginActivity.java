@@ -28,6 +28,14 @@ public class LoginActivity extends Activity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String phone = mEditText.getEditableText().toString();
+                if (phone.length() != 11) {
+                    Toast.makeText(LoginActivity.this
+                            , getString(R.string.tips_phone_number)
+                            , Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
                 if (!TextUtils.isEmpty(mEditText.getEditableText().toString())) {
                     Intent nextIntent = new Intent();
                     nextIntent.setClass(LoginActivity.this, MapViewDemo.class);

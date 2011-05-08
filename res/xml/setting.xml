@@ -18,6 +18,32 @@
 			android:title="@string/refresh_delay"
 			android:key="@string/refresh_rate">
 		</Preference>
+		
+		<CheckBoxPreference 
+			android:title="@string/warning_tips" 
+			android:key="@string/pref_warning_tips" 
+			android:summaryOn="@string/setting_active" 
+			android:summaryOff="@string/setting_inactive"
+			android:defaultValue="false">
+		</CheckBoxPreference>
+	</PreferenceCategory>
+	
+	<PreferenceCategory
+		android:title="@string/categary_tips_type">
+		<CheckBoxPreference 
+			android:title="@string/sound_tips" 
+			android:key="@string/pref_sound_tips" 
+			android:summaryOn="@string/setting_active" 
+			android:summaryOff="@string/setting_inactive"
+			android:defaultValue="false">
+		</CheckBoxPreference>
+		<CheckBoxPreference 
+			android:title="@string/vibrate_tips" 
+			android:key="@string/pref_vibrate_tips" 
+			android:summaryOn="@string/setting_active" 
+			android:summaryOff="@string/setting_inactive"
+			android:defaultValue="false">
+		</CheckBoxPreference>
 	</PreferenceCategory>
 	
 </PreferenceScreen>

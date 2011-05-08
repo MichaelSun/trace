@@ -10,21 +10,27 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ZoomControls;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
@@ -60,6 +66,21 @@ public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusC
 	
     private AlertDialog mTraceListDialog;
     
+    private LinearLayout linearLayout;
+    private ZoomControls zoomControls;
+    private MapController mc;
+    
+    private static final int REFRESH_MAP = 0;
+    private Handler mHandler = new Handler() {
+        public void handleMessge(Message msg) {
+            switch (msg.what) {
+            case REFRESH_MAP:
+                postRefreshOverlay();
+                break;
+            }
+        }
+    };
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +94,8 @@ public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusC
         mMapView.addView(mPopupView, new MapView.LayoutParams(MapView.LayoutParams.WRAP_CONTENT,
                 MapView.LayoutParams.WRAP_CONTENT, null, MapView.LayoutParams.BOTTOM_CENTER));
         mPopupView.setVisibility(View.GONE);
+        
+        mc = mMapView.getController();
         
         mWarningRegionList = new ArrayList<WarningRegion>();
         mTracePointList = new ArrayList<TracePointInfo>();
@@ -101,7 +124,7 @@ public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusC
 //    	    overlay.addOverlay(new OverlayItem(new GeoPoint(39971036,116314659), "沙河", "沙河校区"));  
 //	    overlay.addOverlay(new OverlayItem(new GeoPoint(39971036,116314659), "清水河", "清水河校区"));  
 	    mMapView.getController().setCenter(new GeoPoint(39971036,116314659));//设置地图中心   
-        mMapView.getController().setZoom(15);//设置缩放级别  
+        mMapView.getController().setZoom(Environment.MAP_ZOOM_LEVEL);//设置缩放级别  
         
         mTraceListButton = findViewById(R.id.trace_list_button);
         mTraceListButton.setOnClickListener(new View.OnClickListener() {
@@ -113,6 +136,10 @@ public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusC
                 showTraceInfoListDialog();
             }
         });
+        
+        if (Config.ZOOM_BUTTON_SUPPROT) {
+            initZoomControl();
+        }
     }
     
     @Override
@@ -145,6 +172,30 @@ public class MapViewDemo extends MapActivity implements ItemizedOverlay.OnFocusC
             break;
         }
         return true;
+    }
+    
+    private void initZoomControl() {
+        linearLayout = (LinearLayout) findViewById(R.id.zoomview);
+        zoomControls = (ZoomControls) mMapView.getZoomControls();
+        linearLayout.addView(zoomControls);
+        zoomControls.setOnZoomInClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Environment.MAP_ZOOM_LEVEL = Math.min(Environment.MAP_ZOOM_LEVEL + 1
+                                                    , Environment.MAX_MAP_ZOOM_LEVEL);
+                mc.setZoom(Environment.MAP_ZOOM_LEVEL);
+                LOGD("reload overlay because the zoom in action");
+                mHandler.sendEmptyMessage(REFRESH_MAP);
+            }
+        });
+
+        zoomControls.setOnZoomOutClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Environment.MAP_ZOOM_LEVEL = Math.max(Environment.MAP_ZOOM_LEVEL - 1
+                                                    , Environment.MIN_MAP_ZOOM_LEVEL);
+                mc.setZoom(Environment.MAP_ZOOM_LEVEL);
+                mHandler.sendEmptyMessage(REFRESH_MAP);
+            }
+        });
     }
     
     public void onFocusChanged(ItemizedOverlay overlay, OverlayItem newFocus) {

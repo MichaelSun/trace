@@ -26,7 +26,8 @@
         android:autoText="false"
         android:capitalize="none"
         android:gravity="fill_horizontal"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:inputType="number" />
         
 	<CheckedTextView
 	    android:id="@+id/out_warnging"

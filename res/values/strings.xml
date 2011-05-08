@@ -27,6 +27,11 @@
     <string name="line_draw">被控点轨迹连线</string>
     <string name="setting_active">启用</string>
     <string name="setting_inactive">关闭</string>
+    <string name="warning_tips">报警提示</string>
+    <string name="sound_tips">声音提示</string>
+    <string name="vibrate_tips">震动提示</string>
+    
+    <string name="categary_tips_type">提示方式</string>
     
     <string name="trace_info_id" formatted="false">终端ID : %s</string>
     <string name="trace_info_phonenumber" formatted="false">电话 : %s</string>
@@ -41,5 +46,6 @@
     <string name="text_out_warning">移出报警区域报警</string>
     <string name="text_in_warning">进入报警区域报警</string>
     
+    <string name="tips_phone_number">请输入正确的手机号码</string>
 </resources>
 

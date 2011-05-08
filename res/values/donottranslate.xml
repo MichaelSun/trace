@@ -4,4 +4,7 @@
 	
 	<string name="line_if_draw">line_draw</string>
 	<string name="refresh_rate">refresh_rate</string>
+	<string name="pref_warning_tips">warning_tips</string>
+	<string name="pref_sound_tips">sound_tips</string>
+	<string name="pref_vibrate_tips">vibrate_tips</string>
 </resources>

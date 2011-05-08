@@ -32,6 +32,13 @@
         android:apiKey="0WYabry-9yhhjPvLpo3R1J0egF6_gFCD8LGkqGA"
         />
         
+			<LinearLayout 
+				android:id="@+id/zoomview"
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"
+				android:layout_alignBottom="@id/map"
+				android:layout_centerHorizontal="true" />
+				
     <ImageButton
     	android:id="@+id/trace_list_button"
     	android:layout_width="wrap_content"
