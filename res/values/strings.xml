@@ -10,6 +10,8 @@
     <string name="phone_tips">手机号码</string>
     <string name="empty_phone_bumber">手机号码不能为空</string>
     <string name="warning_region">请输入监控区域范围(单位千米) : </string>
+    <string name="cur_location">我的位置</string>
+    <string name="command_list">命令日志</string>
     
     <string name="btn_ok">确定</string>
     <string name="btn_cancel">取消</string>
@@ -30,6 +32,10 @@
     <string name="warning_tips">报警提示</string>
     <string name="sound_tips">声音提示</string>
     <string name="vibrate_tips">震动提示</string>
+    <string name="map_type">地图类型</string>
+    <string name="search_location">搜索</string>
+    <string name="latitude">经度</string>
+    <string name="longtitude">纬度</string>
     
     <string name="categary_tips_type">提示方式</string>
     
@@ -42,10 +48,19 @@
     <string name="title_trace_point" formatted="false">终端:%s, 手机号:%s</string>
     <string name="title_trace_info_default">终端信息</string>
     <string name="titile_trace_info_list">跟踪点信息</string>
+    <string name="title_search_dialog">经纬度搜索</string>
     
     <string name="text_out_warning">移出报警区域报警</string>
     <string name="text_in_warning">进入报警区域报警</string>
     
-    <string name="tips_phone_number">请输入正确的手机号码</string>
+    <string name="title_warning_point" formatted="false">当前经纬度（经度:%s 纬度:%s）</string>
+    
+    <string name="warning_list">警告区域管理</string>
+    <string name="location_error">地理定位错误</string>
+    
+    <string name="tips_phone_number">请输入11位正确的手机号码</string>
+    <string name="tips_exit">再按返回键退出应用程序</string>
+    
+    <string name="open_gps_msg">启用“定位服务”来允许确定您的位置</string>
 </resources>
 

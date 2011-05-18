@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@drawable/bubble_background"
+	android:layout_width="wrap_content" 
+	android:layout_height="wrap_content"
+	android:paddingLeft="5px" 
+	android:paddingTop="5px"
+	android:paddingRight="5px" 
+	android:paddingBottom="20px">
+	
+		<Button 
+			android:id="@+id/warning"
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:text="@string/warning"
+			android:layout_centerHorizontal="true"
+			android:layout_alignParentTop="true"/>
+	
+	<TextView android:id="@+id/map_bubbleTitle"
+		android:ellipsize="marquee"
+		style="@style/map_BubblePrimary" 
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" 
+		android:gravity="center_horizontal|center_vertical"
+		android:singleLine="true"
+		android:padding="5dp"
+		android:layout_centerHorizontal="true"
+		android:layout_below="@id/warning"/>
+	<TextView android:id="@+id/map_bubbleText" 
+		style="@style/map_BubbleSecondary"
+		android:layout_width="150dip" 
+		android:layout_height="wrap_content"
+		android:singleLine="true"
+		android:gravity="center_horizontal|center_vertical"
+		android:padding="5dp"
+		android:layout_alignLeft="@id/map_bubbleTitle"
+		android:layout_alignRight="@id/map_bubbleTitle"
+		android:layout_below="@id/map_bubbleTitle"
+		android:visibility="gone"/>
+</RelativeLayout>

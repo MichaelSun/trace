@@ -28,6 +28,11 @@ public class SettingManager {
         mEditor = mSharedPreferences.edit();
     }
     
+    public void clearPhone() {
+        mEditor.remove(mContext.getString(R.string.login_phone));
+        mEditor.commit();
+    }
+    
     public void setLoginPhone(String phone) {
         mEditor.putString(mContext.getString(R.string.login_phone), phone);
         mEditor.commit();

@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.mobile.trace.R;
+import com.mobile.trace.utils.SettingManager;
 
 public class LoginActivity extends Activity {
 
@@ -37,8 +38,10 @@ public class LoginActivity extends Activity {
                 }
                 
                 if (!TextUtils.isEmpty(mEditText.getEditableText().toString())) {
+                    SettingManager.getInstance().setLoginPhone(phone);
+                    
                     Intent nextIntent = new Intent();
-                    nextIntent.setClass(LoginActivity.this, MapViewDemo.class);
+                    nextIntent.setClass(LoginActivity.this, MapViewActivity.class);
 //                    nextIntent.setAction("com.mobile.trace.maps");
                     startActivity(nextIntent);
                     finish();

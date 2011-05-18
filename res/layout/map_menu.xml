@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:title="@string/search_location" 
+		android:id="@+id/search"/>
+	<item android:title="@string/cur_location" 
+		android:id="@+id/locate" />
+	<item android:title="@string/map_type" 
+		android:id="@+id/map_type"/>
+	<item android:title="@string/warning_list"
+		android:id="@+id/warning_list" />
+	<item android:title="@string/command_list" 
+		android:id="@+id/command_list"/>
 	<item android:title="@string/setting"
 		android:id="@+id/setting"/>
 </menu>

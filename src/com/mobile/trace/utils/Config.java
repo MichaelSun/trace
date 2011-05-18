@@ -7,4 +7,6 @@ public class Config {
     public static final String SPLITOR = ";";
     
     public static final boolean ZOOM_BUTTON_SUPPROT = true;
+    
+    public static final int LOCATION_TIMEOUT = 20 * 1000;
 }

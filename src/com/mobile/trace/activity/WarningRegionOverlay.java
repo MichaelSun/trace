@@ -21,8 +21,13 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
     private static final String TAG = "WarningRegionOverlay";
     
     public static class WarningRegion {
+        public static final int WARNING_TYPE_IN = 0;
+        public static final int WARNING_TYPE_OUT = 1;
+        
         public GeoPoint point;
         public float region;
+        public float regionSqr;
+        public int warningType;
     }
     
     private static final int LAYER_FLAGS = Canvas.MATRIX_SAVE_FLAG 
@@ -99,9 +104,8 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
               region = mWarningPoints.get(i);
               projection.toPixels(region.point, point);
 
-              float distance = projection.metersToEquatorPixels(region.region);
-              LOGD("[[draw]] >>> float region = " + distance + " km = " + region.region);
-              canvas.drawCircle(point.x, point.y, distance, paint);
+              LOGD("[[draw]] >>> float region = " + region.region);
+              canvas.drawCircle(point.x, point.y, region.region, paint);
           }
 
           canvas.restore();

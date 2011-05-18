@@ -27,7 +27,7 @@ public class StartActivity extends Activity {
         mStartTask.execute();
     }
     
-    private class StartTask extends AsyncTask<String, Void, Integer>{
+    private class StartTask extends AsyncTask<String, Void, Integer> {
         protected Integer doInBackground(String...params) {
             SettingManager.getInstance().init(getApplicationContext());
             SettingManager sm = SettingManager.getInstance();
@@ -54,7 +54,7 @@ public class StartActivity extends Activity {
                 nextIntent.setClass(StartActivity.this, LoginActivity.class);
                 break;
             case LOGIN_SUCCESS:
-                nextIntent.setClass(StartActivity.this, MapViewDemo.class);
+                nextIntent.setClass(StartActivity.this, MapViewActivity.class);
                 break;
             }
             startActivity(nextIntent);

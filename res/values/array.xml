@@ -6,4 +6,10 @@
 	<item>指令3</item>
 	<item>指令4</item>
 	</string-array>
+
+    <string-array name="maptype">
+    	<item>街道</item>
+    	<item>卫星</item>
+    </string-array>
+	
 </resources>
