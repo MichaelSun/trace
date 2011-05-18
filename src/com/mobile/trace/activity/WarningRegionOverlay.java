@@ -26,8 +26,16 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
         
         public GeoPoint point;
         public float region;
-        public float regionSqr;
+        public float regionSquare;
         public int warningType;
+        public int tracePointId;
+        
+        @Override
+        public String toString() {
+            return "Geoppint = " + point + " region = " + region + " regionSquare = " + regionSquare
+                        + " traceId = " + tracePointId + " warning Type = " + warningType;
+        }
+        
     }
     
     private static final int LAYER_FLAGS = Canvas.MATRIX_SAVE_FLAG 

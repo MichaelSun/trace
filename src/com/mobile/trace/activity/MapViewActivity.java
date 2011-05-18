@@ -100,12 +100,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     
     private Projection mProjection;
     private Vibrator mVibrator;
-    private static final long[] mVibratePattern = {1, 20 };
+    private static final long[] mVibratePattern = {5, 30 };
     
-    private float distance;
-    private boolean mIfMove;
-    private float fDownX;
-    private float fDownY;
     private float mLongPressedX;
     private float mLongPressedY;
     private float mLongPressedSqr;
@@ -337,54 +333,35 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                         && mLongPressedWarningRegion != null) {
                     float fDisX = ev.getX();
                     float fDisY = ev.getY();
-//                    float a = (fDisX - mLongPressedX) * (fDisX - mLongPressedX);
-//                    float b = (fDisY - mLongPressedY) * (fDisY - mLongPressedY);
-//                    if (mIfMove) {
-//                        for (TracePointInfo info : mTracePointList) {
-//                            if (info.geoPoint.getLatitudeE6() == mCurrentFocusGeoPoint.getLatitudeE6()
-//                                && info.geoPoint.getLongitudeE6() == mCurrentFocusGeoPoint.getLongitudeE6()) {
-//                                if (info.warningRegion == null) {
-//                                    info.warningRegion = new WarningRegion();
-//                                }
-//                                info.warningRegion.point = mCurrentFocusGeoPoint;
-//                                distance = (float) recountRegion(a, b);
-//                                info.warningRegion.region = mProjection.metersToEquatorPixels(distance * 1000);
-//                                info.warningRegion.regionSqr = info.warningRegion.region
-//                                                                * info.warningRegion.region;
-//
-//                                mWarningRegionList.remove(info.warningRegion);
-//                                mWarningRegionList.add(info.warningRegion);
-//                                break;
-//                            }
-//                        }
-
                     Point point = new Point();
                     mProjection.toPixels(mLongPressedWarningRegion.point, point);
                     if (pointInRound(mLongPressedX, mLongPressedY, mLongPressedSqr, fDisX, fDisY)) {
                         // small
                         float temp = (fDisX - point.x) * (fDisX - point.x) + (fDisY - point.y) * (fDisY - point.y);
                         float move = mLongPressedSqr - temp;
-                        mLongPressedWarningRegion.region = (float) Math.sqrt((mLongPressedWarningRegion.regionSqr - move));
+                        mLongPressedWarningRegion.region = (float) Math.sqrt((mLongPressedWarningRegion.regionSquare - move));
                     } else {
                         // large
+                        float temp = (fDisX - point.x) * (fDisX - point.x) + (fDisY - point.y) * (fDisY - point.y);
+                        float move = temp - mLongPressedSqr;
+                        mLongPressedWarningRegion.region = (float) Math.sqrt((mLongPressedWarningRegion.regionSquare + move));
                     }
-                    
-                        if (mWarningRegionOverlay == null) {
-                            mWarningRegionOverlay = new WarningRegionOverlay(MapViewActivity.this
-                                                            , getResources().getDrawable(R.drawable.local_mark)
-                                                            , mWarningRegionList);
-                        } else {
-                            mWarningRegionOverlay.setWarningRegionList(mWarningRegionList);
-                        }
 
-                        mOverLays.clear();
-                        mOverLays.add(mWarningRegionOverlay);
-                        postRefreshOverlay();
-                        return true;
-//                    }
+                    if (mWarningRegionOverlay == null) {
+                        mWarningRegionOverlay = new WarningRegionOverlay(MapViewActivity.this
+                                                        , getResources().getDrawable(R.drawable.local_mark)
+                                                        , mWarningRegionList);
+                    } else {
+                        mWarningRegionOverlay.setWarningRegionList(mWarningRegionList);
+                    }
+
+                    mOverLays.clear();
+                    mOverLays.add(mWarningRegionOverlay);
+                    postRefreshOverlay();
+                    return true;
                 } else if (MotionEvent.ACTION_UP == ev.getAction()
                         && mLongPressedWarningRegion != null) {
-                    mLongPressedWarningRegion.regionSqr = mLongPressedWarningRegion.region * mLongPressedWarningRegion.region;
+                    mLongPressedWarningRegion.regionSquare = mLongPressedWarningRegion.region * mLongPressedWarningRegion.region;
                     mLongPressedWarningRegion = null;
                 }
                 
@@ -742,24 +719,40 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                 public void onClick(DialogInterface dialog, int whichButton) {
                     EditText editor = (EditText) mWarningEntryView.findViewById(R.id.region_edit);
                     int distance = Integer.valueOf(editor.getText().toString());
-                    boolean hasContainPoint = false;
-                    for (WarningRegion region : mWarningRegionList) {
-                        if (region.point.getLatitudeE6() == mCurrentFocusGeoPoint.getLatitudeE6()
-                                && region.point.getLongitudeE6() == mCurrentFocusGeoPoint.getLongitudeE6()) {
-                            hasContainPoint = true;
-                            region.region = mProjection.metersToEquatorPixels((float) distance * 1000);
-                            region.regionSqr = region.region * region.region;
-                            break;
+                    
+                    WarningRegion warning = null;
+                    if (mCurrentTraceInfo != null) {
+                        for (WarningRegion region : mWarningRegionList) {
+                            if (region.tracePointId == Integer.valueOf(mCurrentTraceInfo.id)) {
+                                warning = region;
+                            }
                         }
+                        if (warning == null) {
+                            warning = new WarningRegion();
+                            warning.point = mCurrentTraceInfo.geoPoint;
+                            mWarningRegionList.add(warning);
+                        }
+                    } else if (mCurrentFocusGeoPoint != null) {
+                        for (WarningRegion region : mWarningRegionList) {
+                            if (region.point.getLatitudeE6() == mCurrentFocusGeoPoint.getLatitudeE6()
+                                    && region.point.getLongitudeE6() == mCurrentFocusGeoPoint.getLongitudeE6()) {
+                                warning = region;
+                            }
+                        }
+                        if (warning == null) {
+                            warning = new WarningRegion();
+                            warning.tracePointId = -1;
+                            warning.point = mCurrentFocusGeoPoint;
+                            mWarningRegionList.add(warning);
+                        }
+                    } else {
+                        return;
                     }
-                    if (!hasContainPoint) {
-                        WarningRegion wRegion = new WarningRegion();
-                        wRegion.point = new GeoPoint(mCurrentFocusGeoPoint.getLatitudeE6()
-                                                , mCurrentFocusGeoPoint.getLongitudeE6());
-                        wRegion.region = mProjection.metersToEquatorPixels(distance * 1000);
-                        wRegion.regionSqr = wRegion.region * wRegion.region;
-                        mWarningRegionList.add(wRegion);
-                    }
+                    
+                    warning.region = mProjection.metersToEquatorPixels((float) distance * 1000);
+                    warning.regionSquare = warning.region * warning.region;
+                    
+                    LOGD("[[showWarningRegionDialog::onClick]] waring info = " + warning.toString());
                     
                     if (mWarningRegionOverlay == null) {
                         mWarningRegionOverlay = new WarningRegionOverlay(MapViewActivity.this
@@ -844,7 +837,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                 for (WarningRegion region : mWarningRegionList) {
                     mProjection.toPixels(region.point, point);
                     float pointDist = ((x - point.x) * (x - point.x)) + ((y - point.y) * (y - point.y));
-                    if (pointDist < region.regionSqr) {
+                    if (pointDist < region.regionSquare) {
                         //long pressed in one warning region
                         vibrateNow();
                         mLongPressedWarningRegion = region;
@@ -858,6 +851,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             
             Projection projection = mMapView.getProjection();
             mCurrentFocusGeoPoint = projection.fromPixels((int) x, (int) y);
+            mCurrentTraceInfo = null;
             
             mPopupView.setVisibility(View.GONE);
             mPopupWarningView.setVisibility(View.VISIBLE);
