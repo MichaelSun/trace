@@ -5,15 +5,15 @@ import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
 
 public class TracePointInfo {
 
-    String id;
+    public String id;
     
-    GeoPoint geoPoint;
+    public GeoPoint geoPoint;
     
-    WarningRegion warningRegion;
+    public WarningRegion warningRegion;
     
-    String title;
+    public String title;
     
-    String summary;
+    public String summary;
     
-    String phoneNumber;
+    public String phoneNumber;
 }

@@ -62,5 +62,6 @@
     <string name="tips_exit">再按返回键退出应用程序</string>
     
     <string name="open_gps_msg">启用“定位服务”来允许确定您的位置</string>
+    <string name="dialog_title_refresh_rate">设置被控点信息刷新频率</string>
 </resources>
 

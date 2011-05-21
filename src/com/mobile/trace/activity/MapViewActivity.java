@@ -50,6 +50,7 @@ import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
 import com.mobile.trace.R;
 import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
+import com.mobile.trace.data_model.StaticDataModel;
 import com.mobile.trace.utils.Config;
 import com.mobile.trace.utils.Environment;
 import com.mobile.trace.utils.SettingManager;
@@ -77,7 +78,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
 	private ItemizedOverlay<OverlayItem> mTraceOverlay;
 	private SpecialPoinOverlay mSpecialOverlay;
 	private ArrayList<WarningRegion> mWarningRegionList;
-	private ArrayList<TracePointInfo> mTracePointList;
+	//public static ArrayList<TracePointInfo> mTracePointList;
 	private ArrayList<GeoPoint> mSpecialPointList;
 	
 	private TracePointInfo mCurrentTraceInfo;
@@ -194,13 +195,14 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         });
         
         initMapView();
-        mWarningRegionList = new ArrayList<WarningRegion>();
-        mTracePointList = new ArrayList<TracePointInfo>();
+        mWarningRegionList = StaticDataModel.getInstance().mWarningRegionList;
+        //StaticDataModel.mTracePointList = new ArrayList<TracePointInfo>();
+        //StaticDataModel.getInstance().mTracePointList = new ArrayList<TracePointInfo>();
         
         buildTracePointList();
         
         mTraceOverlay = new PopOverlay(getResources().getDrawable(R.drawable.local_mark)
-                                , mTracePointList);
+                                , StaticDataModel.getInstance().mTracePointList);
         mTraceOverlay.setOnFocusChangeListener(this);
         mOverLays = mMapView.getOverlays();
         mOverLays.clear();
@@ -240,6 +242,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     public void onDestroy() {
         super.onDestroy();
         SettingManager.getInstance().saveWarningRegion(mWarningRegionList);
+        
+        StaticDataModel.getInstance().clear();
     }
     
     @Override
@@ -286,6 +290,9 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             showMapTypeChangeDialog();
             break;
         case R.id.warning_list:
+            Intent intentWarning = new Intent();
+            intentWarning.setClass(MapViewActivity.this, WarningListActivity.class);
+            startActivity(intentWarning);
             break;
         case R.id.search:
             showSearchDialog();
@@ -294,6 +301,10 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             locateCurrentPoint();
             break;
         case R.id.command_list:
+            Intent intentCommand = new Intent();
+            //intentWarning.putExtra(strTracePointList, mTracePointList);
+            intentCommand.setClass(MapViewActivity.this, CommandListAcitvity.class);
+            startActivity(intentCommand);
             break;
         }
         return true;
@@ -511,7 +522,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         }
         if (newFocus != null) {
             String[] titleInfo = newFocus.getTitle().split(Config.SPLITOR);
-            for (TracePointInfo trace : mTracePointList) {
+            for (TracePointInfo trace : StaticDataModel.getInstance().mTracePointList) {
                 if (trace.id.equals(titleInfo[0])) {
                     this.mCurrentTraceInfo = trace;
                     break;
@@ -562,11 +573,19 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         info.title = "清水河";
         info.summary = "清水河校区";
         info.phoneNumber = "10086";
+        
+        TracePointInfo infoa = new TracePointInfo();
+        infoa.geoPoint = new GeoPoint(39972036, 116315659);
+        infoa.id = "2";
+        infoa.title = "aaa";
+        infoa.summary = "aaaaaa";
+        infoa.phoneNumber = "10086a";
 
-        mTracePointList.add(info);
+        StaticDataModel.getInstance().mTracePointList.add(info);
+        StaticDataModel.getInstance().mTracePointList.add(infoa);
 
         Environment.tracePointList.clear();
-        Environment.tracePointList.addAll(mTracePointList);
+        Environment.tracePointList.addAll(StaticDataModel.getInstance().mTracePointList);
     }
     
     private void initPopupWaringView() {

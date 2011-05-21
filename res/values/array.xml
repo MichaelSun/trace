@@ -6,6 +6,26 @@
 	<item>指令3</item>
 	<item>指令4</item>
 	</string-array>
+	
+	
+	<!-- Used in app/menu examples -->
+    <string-array name="entries_list_preference">
+        <item>1 分钟</item>
+        <item>3 分钟</item>
+        <item>5 分钟</item>  
+        <item>10 分钟</item>
+        <item>30 分钟</item>
+    </string-array>
+
+    <!-- Used in app/menu examples -->
+    <string-array name="entryvalues_list_preference">
+        <item>1</item>
+        <item>3</item>
+        <item>5</item>  
+        <item>10</item> 
+        <item>30</item> 
+    </string-array>
+    
 
     <string-array name="maptype">
     	<item>街道</item>
