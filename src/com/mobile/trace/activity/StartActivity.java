@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.Window;
 
 import com.mobile.trace.R;
+import com.mobile.trace.database.DatabaseOperator;
 import com.mobile.trace.utils.SettingManager;
 
 public class StartActivity extends Activity {
@@ -31,6 +32,7 @@ public class StartActivity extends Activity {
         protected Integer doInBackground(String...params) {
             SettingManager.getInstance().init(getApplicationContext());
             SettingManager sm = SettingManager.getInstance();
+            DatabaseOperator.getInstance().init(getApplicationContext());
             
             //test code
             try {

@@ -51,6 +51,7 @@ import com.google.android.maps.Projection;
 import com.mobile.trace.R;
 import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
 import com.mobile.trace.data_model.StaticDataModel;
+import com.mobile.trace.database.DatabaseOperator;
 import com.mobile.trace.utils.Config;
 import com.mobile.trace.utils.Environment;
 import com.mobile.trace.utils.SettingManager;
@@ -225,7 +226,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         
         locateCurrentPoint();
         
-        SettingManager.getInstance().loadWarningRegion(mWarningRegionList);
+//        SettingManager.getInstance().loadWarningRegion(mWarningRegionList);
+        mWarningRegionList = DatabaseOperator.getInstance().queryWarningInfoList();
     }
     
     @Override
@@ -241,7 +243,10 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     @Override
     public void onDestroy() {
         super.onDestroy();
-        SettingManager.getInstance().saveWarningRegion(mWarningRegionList);
+//        SettingManager.getInstance().saveWarningRegion(mWarningRegionList);
+        for (WarningRegion region : mWarningRegionList) {
+            DatabaseOperator.getInstance().saveWarningInfo(region);
+        }
         
         StaticDataModel.getInstance().clear();
     }
@@ -368,6 +373,9 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                         && mLongPressedWarningRegion != null) {
                     mLongPressedWarningRegion.regionSquare = mLongPressedWarningRegion.region * mLongPressedWarningRegion.region;
                     mLongPressedWarningRegion = null;
+                    for (WarningRegion region : mWarningRegionList) {
+                        DatabaseOperator.getInstance().saveWarningInfo(region);
+                    }
                 }
                 
                 return false;
@@ -777,6 +785,10 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                     }
                     mOverLays.add(mWarningRegionOverlay);
                     postRefreshOverlay();
+                    
+                    for (WarningRegion region : mWarningRegionList) {
+                        DatabaseOperator.getInstance().saveWarningInfo(region);
+                    }
                 }
             })
             .setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {

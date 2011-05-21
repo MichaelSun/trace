@@ -18,21 +18,19 @@ import android.widget.SimpleAdapter;
 import com.mobile.trace.R;
 import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
 import com.mobile.trace.data_model.StaticDataModel;
+import com.mobile.trace.database.DatabaseOperator;
 
 public class WarningListActivity extends ListActivity {
 
-//	public WarningListActivity() {
-//		// TODO Auto-generated constructor stub
-//	}
-	
 	private AlertDialog mTraceInfoDialog;
+	
+	private ArrayList<WarningRegion> mWarningList;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        //Intent intent = getIntent();
-        //MapViewActivity.mTracePointList.get(0);
+        mWarningList = DatabaseOperator.getInstance().queryWarningInfoList();
         
         setListAdapter(new SimpleAdapter(this, getData(),
                 android.R.layout.simple_list_item_1, new String[] { "title" },//simple_list_item_1
@@ -53,9 +51,9 @@ public class WarningListActivity extends ListActivity {
         //listView.setAdapter(new TraceInfoAdapter(this, Environment.tracePointList));
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position < StaticDataModel.mWarningRegionList.size()) {
+                if (position < mWarningList.size()) {
                 	StringBuilder builder = new StringBuilder();
-                	WarningRegion warningInfo = StaticDataModel.mWarningRegionList.get(position);
+                	WarningRegion warningInfo = mWarningList.get(position);
                 	builder.append("警告区域中心(Lat : " 
                 	            + String.valueOf((warningInfo.point.getLatitudeE6() * 1.0) / 10E6)
                 	            + " lon : "
@@ -72,10 +70,10 @@ public class WarningListActivity extends ListActivity {
     
     protected List getData() {
     	List<Map> myData = new ArrayList<Map>();
-    	int iLen = StaticDataModel.mWarningRegionList.size();
+    	int iLen = mWarningList.size();
     	for(int i = 0; i < iLen; i++) {
     		addItem(myData
-    		        , "警告区域信息：" + StaticDataModel.mWarningRegionList.get(i).point.toString()
+    		        , "警告区域信息：" + mWarningList.get(i).point.toString()
     		        , null);
     	}
     	return myData;
