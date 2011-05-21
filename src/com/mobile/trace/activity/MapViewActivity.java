@@ -222,13 +222,24 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         }
         
         locateCurrentPoint();
+        
+        SettingManager.getInstance().loadWarningRegion(mWarningRegionList);
     }
     
     @Override
     public void onResume() {
         super.onResume();
+        
+        resetOverlay();
+        
         postRefreshOverlay();
         mBackKeyPressedCount = 0;
+    }
+    
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        SettingManager.getInstance().saveWarningRegion(mWarningRegionList);
     }
     
     @Override
@@ -312,23 +323,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                 
                 
                 if (((MotionEvent.ACTION_DOWN) == ev.getAction()) && (mCurrentFocusGeoPoint != null)) {
-//                    fDownX = ev.getX();
-//                    fDownY = ev.getY();
-//                    Projection projection = mMapView.getProjection();
-//                    Point point = new Point();
-//                    projection.toPixels(mCurrentFocusGeoPoint, point);
-//                    focusX = point.x;
-//                    focusY = point.y;
-//
-//                    float RawX = ev.getX();
-//                    float RawY = ev.getY();
-//                    float a = (RawX - focusX) * (RawX - focusX);
-//                    float b = (RawY - focusY) * (RawY - focusY);
-//                    float c = distance * distance;
-//                    float del = c - (a + b);
-//                    if ((del < 10) || (del > -10)) {
-//                        mIfMove = true;
-//                    }
+                    
                 } else if ((MotionEvent.ACTION_MOVE == ev.getAction())
                         && mLongPressedWarningRegion != null) {
                     float fDisX = ev.getX();
@@ -355,8 +350,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                         mWarningRegionOverlay.setWarningRegionList(mWarningRegionList);
                     }
 
-                    mOverLays.clear();
-                    mOverLays.add(mWarningRegionOverlay);
+                    resetOverlay();
                     postRefreshOverlay();
                     return true;
                 } else if (MotionEvent.ACTION_UP == ev.getAction()
@@ -730,6 +724,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                         if (warning == null) {
                             warning = new WarningRegion();
                             warning.point = mCurrentTraceInfo.geoPoint;
+                            warning.tracePointId = Integer.valueOf(mCurrentTraceInfo.id);
                             mWarningRegionList.add(warning);
                         }
                     } else if (mCurrentFocusGeoPoint != null) {
@@ -806,6 +801,11 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             mOverLays.clear();
             mOverLays.add(mTraceOverlay);
             if (mWarningRegionOverlay != null) {
+                mOverLays.add(mWarningRegionOverlay);
+            } else {
+                mWarningRegionOverlay = new WarningRegionOverlay(MapViewActivity.this
+                                , getResources().getDrawable(R.drawable.local_mark)
+                                , mWarningRegionList);
                 mOverLays.add(mWarningRegionOverlay);
             }
             if (mSpecialOverlay != null) {

@@ -7,4 +7,6 @@
 	<string name="pref_warning_tips">warning_tips</string>
 	<string name="pref_sound_tips">sound_tips</string>
 	<string name="pref_vibrate_tips">vibrate_tips</string>
+	
+	<string name="pref_warning">warning_region</string>
 </resources>

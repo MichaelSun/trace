@@ -24,11 +24,42 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
         public static final int WARNING_TYPE_IN = 0;
         public static final int WARNING_TYPE_OUT = 1;
         
+        public static final String INTERNAL_SPLITOR = "#";
+        
         public GeoPoint point;
         public float region;
         public float regionSquare;
         public int warningType;
         public int tracePointId;
+        
+        public WarningRegion() {
+        }
+        
+        public WarningRegion(String info) {
+            if (info != null) {
+                String[] infos = info.split(INTERNAL_SPLITOR);
+                if (infos != null) {
+                    point = new GeoPoint(Integer.valueOf(infos[0])
+                                    , Integer.valueOf(infos[1]));
+                    region = Float.valueOf(infos[2]);
+                    regionSquare = Float.valueOf(infos[3]);
+                    warningType = Integer.valueOf(infos[4]);
+                    tracePointId = Integer.valueOf(infos[5]);
+                }
+            }
+        }
+        
+        public String makeSaveString() {
+            StringBuilder ret = new StringBuilder();
+            ret.append(String.valueOf(point.getLatitudeE6())).append(INTERNAL_SPLITOR);
+            ret.append(String.valueOf(point.getLongitudeE6())).append(INTERNAL_SPLITOR);
+            ret.append(String.valueOf(region)).append(INTERNAL_SPLITOR);
+            ret.append(String.valueOf(regionSquare)).append(INTERNAL_SPLITOR);
+            ret.append(String.valueOf(warningType)).append(INTERNAL_SPLITOR);
+            ret.append(String.valueOf(tracePointId));
+            
+            return ret.toString();
+        }
         
         @Override
         public String toString() {
