@@ -58,7 +58,6 @@ public class DatabaseOperator {
                     wRegion.region = Float.valueOf(region);
                     wRegion.warningType = Integer.valueOf(type);
                     wRegion.tracePointId = Integer.valueOf(traceid);
-                    wRegion.regionSquare = wRegion.region * wRegion.region;
                     
                     ret.add(wRegion);
                     

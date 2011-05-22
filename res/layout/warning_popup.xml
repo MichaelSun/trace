@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:background="@drawable/bubble_background"
+	android:layout_width="wrap_content" 
+	android:layout_height="wrap_content"
+	android:paddingLeft="5px" 
+	android:paddingTop="5px"
+	android:paddingRight="5px" 
+	android:paddingBottom="20px">
+	
+	<TextView
+		android:id="@+id/info"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		style="@style/map_BubblePrimary" 
+		android:layout_centerInParent="true"
+		android:padding="5dp">
+	</TextView>
+	
+</RelativeLayout>

@@ -9,7 +9,7 @@
     <string name="login_account">手机号码</string>
     <string name="phone_tips">手机号码</string>
     <string name="empty_phone_bumber">手机号码不能为空</string>
-    <string name="warning_region">请输入监控区域范围(单位千米) : </string>
+    <string name="warning_region">请输入监控区域范围(单位千米)</string>
     <string name="cur_location">我的位置</string>
     <string name="command_list">命令日志</string>
     
@@ -53,7 +53,7 @@
     <string name="text_out_warning">移出报警区域报警</string>
     <string name="text_in_warning">进入报警区域报警</string>
     
-    <string name="title_warning_point" formatted="false">当前经纬度（经度:%s 纬度:%s）</string>
+    <string name="title_warning_point" formatted="false">当前经纬度(%s %s)</string>
     
     <string name="warning_list">警告区域管理</string>
     <string name="location_error">地理定位错误</string>

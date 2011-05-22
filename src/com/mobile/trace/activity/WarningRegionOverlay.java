@@ -28,6 +28,7 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
         
         public GeoPoint point;
         public float region;
+        public float regionPixel;
         public float regionSquare;
         public int warningType;
         public int tracePointId;
@@ -41,7 +42,7 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
                 if (infos != null) {
                     point = new GeoPoint(Integer.valueOf(infos[0])
                                     , Integer.valueOf(infos[1]));
-                    region = Float.valueOf(infos[2]);
+                    regionPixel = Float.valueOf(infos[2]);
                     regionSquare = Float.valueOf(infos[3]);
                     warningType = Integer.valueOf(infos[4]);
                     tracePointId = Integer.valueOf(infos[5]);
@@ -53,7 +54,7 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
             StringBuilder ret = new StringBuilder();
             ret.append(String.valueOf(point.getLatitudeE6())).append(INTERNAL_SPLITOR);
             ret.append(String.valueOf(point.getLongitudeE6())).append(INTERNAL_SPLITOR);
-            ret.append(String.valueOf(region)).append(INTERNAL_SPLITOR);
+            ret.append(String.valueOf(regionPixel)).append(INTERNAL_SPLITOR);
             ret.append(String.valueOf(regionSquare)).append(INTERNAL_SPLITOR);
             ret.append(String.valueOf(warningType)).append(INTERNAL_SPLITOR);
             ret.append(String.valueOf(tracePointId));
@@ -63,7 +64,7 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
         
         @Override
         public String toString() {
-            return "Geoppint = " + point + " region = " + region + " regionSquare = " + regionSquare
+            return "Geoppint = " + point + " region = " + region + " regionPixel = " + regionPixel + " regionSquare = " + regionSquare
                         + " traceId = " + tracePointId + " warning Type = " + warningType;
         }
         
@@ -143,8 +144,8 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
               region = mWarningPoints.get(i);
               projection.toPixels(region.point, point);
 
-              LOGD("[[draw]] >>> float region = " + region.region);
-              canvas.drawCircle(point.x, point.y, region.region, paint);
+              LOGD("[[draw]] >>> float region = " + region.regionPixel);
+              canvas.drawCircle(point.x, point.y, region.regionPixel, paint);
           }
 
           canvas.restore();
