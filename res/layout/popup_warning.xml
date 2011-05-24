@@ -12,7 +12,7 @@
 			android:id="@+id/warning"
 			android:layout_width="100dp"
 			android:layout_height="wrap_content"
-			android:text="@string/warning"
+			android:text="@string/warning_local"
 			android:layout_centerHorizontal="true"
 			android:layout_alignParentTop="true"/>
 	

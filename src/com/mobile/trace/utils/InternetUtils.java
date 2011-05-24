@@ -14,6 +14,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
@@ -21,7 +22,12 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 
+import android.util.Log;
+
 public class InternetUtils {
+    private static final String TAG = "InternetUtils";
+    private static final boolean DEBUG = true;
+    
     private static final int TIMEOUT = 30000;
 
     public static HttpResponse OpenHttpConnection(String urlString) {
@@ -44,6 +50,36 @@ public class InternetUtils {
         return null;
     }
 
+    public static HttpResponse OpenHttpConnection(String urlString, byte[] postData) {
+        HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
+        HttpConnectionParams.setSoTimeout(params, TIMEOUT);
+        HttpConnectionParams.setSocketBufferSize(params, 8192);
+        DefaultHttpClient hc = new DefaultHttpClient(params);
+        HttpPost post = new HttpPost();
+        try {
+            post.setURI(new URI(urlString));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
+        post.setHeader("Accept-Encoding", "gzip,deflate");
+        ByteArrayEntity byteData = new ByteArrayEntity(postData);
+        post.setEntity(byteData);
+        
+        LOGD("[[OpenHttpConnection]] open the url = " + urlString
+                + " post data = " + postData);
+        
+        try {
+            return hc.execute(post);
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
     public static HttpResponse OpenHttpConnection(String postUrl, Map<String, String> uploadContextMap) {
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
@@ -94,4 +130,10 @@ public class InternetUtils {
     // }
     // return false;
     // }
+    
+    private static void LOGD(String msg) {
+        if (Config.DEBUG) {
+            Log.d(TAG, msg);
+        }
+    }
 }

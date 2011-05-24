@@ -24,6 +24,9 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
         public static final int WARNING_TYPE_IN = 0;
         public static final int WARNING_TYPE_OUT = 1;
         
+        public static final int WARNING_TYPE_REMOTE = 0x02;
+        public static final int WARNING_TYPE_LOCAL = 0x04;
+        
         public static final String INTERNAL_SPLITOR = "#";
         
         public GeoPoint point;
@@ -32,6 +35,8 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
         public float regionSquare;
         public int warningType;
         public int tracePointId;
+        
+        public int warningRemoteLocalType;
         
         public WarningRegion() {
         }

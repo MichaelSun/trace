@@ -9,4 +9,6 @@
 	<string name="pref_vibrate_tips">vibrate_tips</string>
 	
 	<string name="pref_warning">warning_region</string>
+	
+	<string name="login_passwd">login_passwd</string>
 </resources>

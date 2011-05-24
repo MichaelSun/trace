@@ -28,13 +28,15 @@ public class Config {
                     + "point TEXT not null, "
                     + "region TEXT not null, "
                     + "type TEXT not null, "
-                    + "traceid TEXT not null)";
+                    + "traceid TEXT not null, " 
+                    + "rltype TEXT not null)";
     
     public static final String WARNING_TABLE_NAME = "warning";
     public static final String WARNING_TABLE_POINT = "point";
     public static final String WARNING_TABLE_REGION = "region";
     public static final String WARNING_TABLE_TYPE = "type";
     public static final String WARNING_TABLE_TRACEID = "traceid";
+    public static final String WARNING_TABLE_RLTYPE = "rltype";
     
     public static final String COMMAND_DATABASE_CREATE = "create table command "
                     + "(_id INTEGER primary key autoincrement, "

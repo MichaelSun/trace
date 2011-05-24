@@ -37,12 +37,20 @@ public class DatabaseOperator {
         mDBProxy = DatabaseProxy.getDBInstance(context);
     }
     
-    public ArrayList<WarningRegion> queryWarningInfoList() {
+    public ArrayList<WarningRegion> queryWarningInfoList(int warningType) {
         ArrayList<WarningRegion> ret = new ArrayList<WarningRegion>();
+        
+        String selection = Config.WARNING_TABLE_RLTYPE + "=?";
+        String[] selectionArgs = new String[]{ String.valueOf(warningType) };
         
         Cursor cursor = null;
         try {
-            cursor = mDBProxy.query(Config.WARNING_TABLE_NAME, null, null, null);
+            if (warningType != WarningRegion.WARNING_TYPE_REMOTE
+                    && warningType != WarningRegion.WARNING_TYPE_LOCAL) {
+                cursor = mDBProxy.query(Config.WARNING_TABLE_NAME, null, null, null);
+            } else {
+                cursor = mDBProxy.query(Config.WARNING_TABLE_NAME, selection, selectionArgs, null);
+            }
             LOGD("[[queryWarningInfoList]] cursor = " + cursor);
             if (cursor != null) {
                 while (cursor.moveToNext()) {
@@ -52,12 +60,14 @@ public class DatabaseOperator {
                     String region = cursor.getString(cursor.getColumnIndex(Config.WARNING_TABLE_REGION));
                     String type = cursor.getString(cursor.getColumnIndex(Config.WARNING_TABLE_TYPE));
                     String traceid = cursor.getString(cursor.getColumnIndex(Config.WARNING_TABLE_TRACEID));
+                    String rlType = cursor.getString(cursor.getColumnIndex(Config.WARNING_TABLE_RLTYPE));
 
                     String[] splited = point.split(Config.SPLITOR);
                     wRegion.point = new GeoPoint(Integer.valueOf(splited[0]), Integer.valueOf(splited[1]));
                     wRegion.region = Float.valueOf(region);
                     wRegion.warningType = Integer.valueOf(type);
                     wRegion.tracePointId = Integer.valueOf(traceid);
+                    wRegion.warningRemoteLocalType = Integer.valueOf(rlType);
                     
                     ret.add(wRegion);
                     
@@ -76,6 +86,15 @@ public class DatabaseOperator {
         return ret;
     }
     
+    public void deleteWaringInfo(WarningRegion region) {
+        String geoInfo = String.valueOf(region.point.getLatitudeE6()) + Config.SPLITOR
+                            + String.valueOf(region.point.getLongitudeE6());
+        String selection = Config.WARNING_TABLE_POINT + "=?";
+        String[] selectionArgs = new String[]{ geoInfo };
+        
+        mDBProxy.delete(Config.WARNING_TABLE_NAME, selection, selectionArgs);
+    }
+    
     public void saveWarningInfo(WarningRegion region) {
         String geoInfo = String.valueOf(region.point.getLatitudeE6()) + Config.SPLITOR
                             + String.valueOf(region.point.getLongitudeE6());
@@ -85,6 +104,7 @@ public class DatabaseOperator {
         values.put(Config.WARNING_TABLE_REGION, String.valueOf(region.region));
         values.put(Config.WARNING_TABLE_TYPE, String.valueOf(region.warningType));
         values.put(Config.WARNING_TABLE_TRACEID, String.valueOf(region.tracePointId));
+        values.put(Config.WARNING_TABLE_RLTYPE, String.valueOf(region.warningRemoteLocalType));
 
         String selection = Config.WARNING_TABLE_POINT + "=? AND " + Config.WARNING_TABLE_TRACEID + "=?";
         String[] selectionArgs = new String[]{geoInfo, String.valueOf(region.tracePointId) };

@@ -31,6 +31,15 @@ public class SettingManager {
         mEditor = mSharedPreferences.edit();
     }
     
+    public void setLoginPassword(String passwd) {
+        mEditor.putString(mContext.getString(R.string.login_passwd), passwd);
+        mEditor.commit();
+    }
+    
+    public String getLoginPassword() {
+        return mSharedPreferences.getString(mContext.getString(R.string.login_passwd), null);
+    }
+    
     public void clearPhone() {
         mEditor.remove(mContext.getString(R.string.login_phone));
         mEditor.commit();

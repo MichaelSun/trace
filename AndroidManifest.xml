@@ -55,6 +55,11 @@
 			android:name="com.mobile.trace.activity.CommandListAcitvity"
 			android:label="@string/app_name">
 		</activity>
+		
+		<activity
+			android:name="com.mobile.trace.activity.WarningViewActivity"
+			android:label="@string/app_name">
+		</activity>
 
         <!-- activity android:name="com.mobile.trace.activity.MapViewCompassDemo" android:label="MapView and Compass">
             <intent-filter>

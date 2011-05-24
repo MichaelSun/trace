@@ -1,7 +1,11 @@
 package com.mobile.trace.activity;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -53,7 +57,9 @@ import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
 import com.mobile.trace.data_model.StaticDataModel;
 import com.mobile.trace.database.DatabaseOperator;
 import com.mobile.trace.utils.Config;
+import com.mobile.trace.utils.EncryptUtils;
 import com.mobile.trace.utils.Environment;
+import com.mobile.trace.utils.InternetUtils;
 import com.mobile.trace.utils.SettingManager;
 
 public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFocusChangeListener {
@@ -76,6 +82,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
 	
 	private WarningRegionOverlay mWarningRegionOverlay;
 	private WarningRegion mLongPressedWarningRegion;
+	private WarningRegion mLongPressedWarningRegionRetain;
 	private GeoPoint mCurrentFocusGeoPoint;
 	private List<Overlay> mOverLays;
 	private ItemizedOverlay<OverlayItem> mTraceOverlay;
@@ -205,10 +212,6 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         });
         
         initMapView();
-        mWarningRegionList = StaticDataModel.getInstance().mWarningRegionList;
-        //StaticDataModel.mTracePointList = new ArrayList<TracePointInfo>();
-        //StaticDataModel.getInstance().mTracePointList = new ArrayList<TracePointInfo>();
-        
         buildTracePointList();
         
         mTraceOverlay = new PopOverlay(getResources().getDrawable(R.drawable.local_mark)
@@ -234,13 +237,15 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         }
         
         locateCurrentPoint();
-        initWarningRegionList();
     }
     
     @Override
     public void onResume() {
         super.onResume();
         
+        mMetersToPixel = mProjection.metersToEquatorPixels((float) (1.0 * 1000));
+        
+        initWarningRegionList();        
         resetOverlay();
         
         postRefreshOverlay();
@@ -301,12 +306,16 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             showMapTypeChangeDialog();
             break;
         case R.id.warning_list:
+//            Intent intentWarning = new Intent();
+//            intentWarning.setClass(MapViewActivity.this, WarningListActivity.class);
+//            startActivity(intentWarning);
             Intent intentWarning = new Intent();
-            intentWarning.setClass(MapViewActivity.this, WarningListActivity.class);
+            intentWarning.setClass(MapViewActivity.this, WarningViewActivity.class);
             startActivity(intentWarning);
             break;
         case R.id.search:
-            showSearchDialog();
+            serviceTestCode();
+//            showSearchDialog();
             break;
         case R.id.locate:
             locateCurrentPoint();
@@ -317,12 +326,16 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             intentCommand.setClass(MapViewActivity.this, CommandListAcitvity.class);
             startActivity(intentCommand);
             break;
+        case R.id.logout:
+            SettingManager.getInstance().clearPhone();
+            finish();
+            break;
         }
         return true;
     }
     
     private void initWarningRegionList() {
-        mWarningRegionList = DatabaseOperator.getInstance().queryWarningInfoList();
+        mWarningRegionList = DatabaseOperator.getInstance().queryWarningInfoList(-1);
         for (WarningRegion region : mWarningRegionList) {
             region.regionPixel = mProjection.metersToEquatorPixels((float) region.region * 1000);
             region.regionSquare = region.regionPixel * region.regionPixel;
@@ -343,8 +356,6 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         mGestureDetector = new GestureDetector(this, new OnGestureListener());
         mProjection = mMapView.getProjection();
         
-        mMetersToPixel = mProjection.metersToEquatorPixels((float) (1.0 * 1000));
-        
         mMapView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent ev) {
@@ -355,8 +366,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                 if (ev.getAction() == MotionEvent.ACTION_DOWN) {
                     mPopupWarningView.setVisibility(View.GONE);
                     mWarningInfoPopupView.setVisibility(View.GONE);
+//                    mLongPressedWarningRegionRetain = null;
                 }
-                
                 
                 if (((MotionEvent.ACTION_DOWN) == ev.getAction()) && (mCurrentFocusGeoPoint != null)) {
                     
@@ -385,8 +396,12 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                     } else {
                         mWarningRegionOverlay.setWarningRegionList(mWarningRegionList);
                     }
-                    
+
                     mLongPressedWarningRegion.region = mLongPressedWarningRegion.regionPixel / mMetersToPixel;
+                    
+                    LOGD("[[OnTouch]] long pressed region pixel = " + mLongPressedWarningRegion.regionPixel
+                            + " meter to pixel = " + mMetersToPixel
+                            + " region = " + mLongPressedWarningRegion.region);
                     sendMessage(SHOW_WARNINGINFO_POPUP, mLongPressedWarningRegion);
                     resetOverlay();
                     postRefreshOverlay();
@@ -646,6 +661,19 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     
     private void initWarningInfoPopupView() {
         mWarningInfoPopupView = View.inflate(this, R.layout.warning_popup, null);
+        View remove = mWarningInfoPopupView.findViewById(R.id.remove);
+        remove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mWarningRegionList.remove(mLongPressedWarningRegionRetain);
+                if (mLongPressedWarningRegionRetain != null) {
+                    DatabaseOperator.getInstance().deleteWaringInfo(mLongPressedWarningRegionRetain);
+                }
+                resetOverlay();
+                postRefreshOverlay();
+                mWarningInfoPopupView.setVisibility(View.GONE);
+            }
+        });
     }
     
     private void initPopupView() {
@@ -780,6 +808,10 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     EditText editor = (EditText) mWarningEntryView.findViewById(R.id.region_edit);
+                    if (TextUtils.isEmpty(editor.getText().toString())) {
+                        return;
+                    }
+                    
                     int distance = Integer.valueOf(editor.getText().toString());
                     
                     WarningRegion warning = null;
@@ -793,6 +825,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                             warning = new WarningRegion();
                             warning.point = mCurrentTraceInfo.geoPoint;
                             warning.tracePointId = Integer.valueOf(mCurrentTraceInfo.id);
+                            warning.warningRemoteLocalType = WarningRegion.WARNING_TYPE_REMOTE;
                             mWarningRegionList.add(warning);
                         }
                     } else if (mCurrentFocusGeoPoint != null) {
@@ -806,6 +839,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                             warning = new WarningRegion();
                             warning.tracePointId = -1;
                             warning.point = mCurrentFocusGeoPoint;
+                            warning.warningRemoteLocalType = WarningRegion.WARNING_TYPE_LOCAL;
                             mWarningRegionList.add(warning);
                         }
                     } else {
@@ -879,6 +913,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             mOverLays.clear();
             mOverLays.add(mTraceOverlay);
             if (mWarningRegionOverlay != null) {
+                mWarningRegionOverlay.setWarningRegionList(mWarningRegionList);
                 mOverLays.add(mWarningRegionOverlay);
             } else {
                 mWarningRegionOverlay = new WarningRegionOverlay(MapViewActivity.this
@@ -888,6 +923,10 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             }
             if (mSpecialOverlay != null) {
                 mOverLays.add(mSpecialOverlay);
+            }
+            
+            for (WarningRegion region : mWarningRegionList) {
+                DatabaseOperator.getInstance().saveWarningInfo(region);
             }
         }
     }
@@ -918,6 +957,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                     if (pointDist < region.regionSquare) {
                         //long pressed in one warning region
                         vibrateNow();
+                        mLongPressedWarningRegionRetain = region;
                         mLongPressedWarningRegion = region;
                         mLongPressedX = event.getX();
                         mLongPressedY = event.getY();      
@@ -963,7 +1003,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                     + " "
                     + String.valueOf((warningInfo.point.getLongitudeE6() * 1.0) / 1E6)
                     + "\n");
-        builder.append("警告区域 ： " + String.valueOf(distance) + " 千米\n");
+        builder.append("告警半径 ： " + String.valueOf(distance) + " 千米\n");
         builder.append("被控终端ID ： " + String.valueOf(warningInfo.tracePointId));
         
         tv.setText(builder.toString());
@@ -986,6 +1026,32 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         msg.what = what;
         msg.obj = obj;
         mHandler.sendMessage(msg);
+    }
+    
+    private void serviceTestCode() {
+        String testCommand = "{\"MsgType\":0,\"MsgValue\":{\"IMSI\":\"11111111112222222222\",\"MobilePhone\":\"12345678901\"}}";
+        String serverUrl = "http://192.168.1.3/ServiceTest/BackService.asmx?op=MonitorDeviceLoad";
+
+        try {
+            byte[] dataEncrpty = EncryptUtils.Encrypt2Bytes(testCommand.getBytes(), "dongbinhuiasxiny");
+            String dataLog = EncryptUtils.Encrypt(testCommand, "dongbinhuiasxiny");
+            LOGD("[[serviceTestCode]] data log = " + dataLog);
+            HttpResponse response = InternetUtils.OpenHttpConnection(serverUrl, testCommand.getBytes("UTF-8"));
+            if (response != null) {
+                LOGD("[[serviceTestCode]] response code = " + response.getStatusLine().getStatusCode());
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    byte[] dataBytes = EntityUtils.toByteArray(response.getEntity());
+                    LOGD("[[serviceTestCode]] return data = " + dataBytes);
+                    String dataDecrypty = EncryptUtils.Decrypt(dataBytes, "dongbinhuiasxiny");
+                    LOGD("[[serviceTestCode]] real login data = " + dataDecrypty);
+                }
+            } else {
+                LOGD("[[serviceTestCode]] open service interface response == null");
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     private static void LOGD(String msg) {
