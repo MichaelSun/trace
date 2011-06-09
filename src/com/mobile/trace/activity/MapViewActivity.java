@@ -1,6 +1,5 @@
 package com.mobile.trace.activity;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +64,11 @@ import com.mobile.trace.utils.SettingManager;
 public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFocusChangeListener {
     private static final String TAG = "MapViewDemo";
 	
+    private class TraceInfoItem {
+        TracePointInfo traceInfo;
+        View tipsView;
+    }
+    
 	private View mPopupView;
 	private View mPopupWarningView;
 	private View mWarningInfoPopupView;
@@ -91,12 +95,16 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
 	//public static ArrayList<TracePointInfo> mTracePointList;
 	private ArrayList<GeoPoint> mSpecialPointList;
 	
+	private ArrayList<TraceInfoItem> mTraceInfoItemList = new ArrayList<TraceInfoItem>();
+	
 	private TracePointInfo mCurrentTraceInfo;
 	
     private View mWarningEntryView;
     private CheckedTextView mOutWarningView;
     private CheckedTextView mInWarningView;
-	
+    private View mTraceListSelectedView;
+    private int mTraceSelectedId = -1;
+    
     private View mSearchDialogView;
     
     private AlertDialog mTraceListDialog;
@@ -106,6 +114,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private MapController mMapController;
     
     private GestureDetector mGestureDetector;
+    
+    private GeoPoint mCurrentGeoPoint;
     
     private int mBackKeyPressedCount = 0;
     
@@ -142,7 +152,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             if (location != null) {
                 int lat = (int) (location.getLatitude() * 1E6);
                 int lon = (int) (location.getLongitude() * 1E6);
-                GeoPoint point = new GeoPoint(lat, lon);
+                mCurrentGeoPoint = new GeoPoint(lat, lon);
                 
                 if (mSpecialPointList == null) {
                     mSpecialPointList = new ArrayList<GeoPoint>();
@@ -153,14 +163,14 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                                                 , mSpecialPointList);
                 }
                 mSpecialOverlay.clearOverlay();
-                mSpecialOverlay.addOverlay(point);
+                mSpecialOverlay.addOverlay(mCurrentGeoPoint);
                 resetOverlay();
                 postRefreshOverlay();
-                sendMoveLocationMessage(point);
+                sendMoveLocationMessage(mCurrentGeoPoint);
             } else {
                 showLocationError();
             }
-            removeLocationListener();
+//            removeLocationListener();
         }
     };
     
@@ -168,6 +178,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private static final int LBS_TIME_OUT = 1;
     private static final int MOVE_TO_LOCATION = 2;
     private static final int SHOW_WARNINGINFO_POPUP = 3;
+    private static final int SHOW_TRACE_INFO_TIPS = 4;
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -184,6 +195,9 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                 break;
             case SHOW_WARNINGINFO_POPUP:
                 updateWarningInfoPopup((WarningRegion) msg.obj);
+                break;
+            case SHOW_TRACE_INFO_TIPS:
+                showTraceInfoItem();
                 break;
             }
         }
@@ -213,6 +227,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         
         initMapView();
         buildTracePointList();
+        buildTraceInfoItemList();
         
         mTraceOverlay = new PopOverlay(getResources().getDrawable(R.drawable.local_mark)
                                 , StaticDataModel.getInstance().mTracePointList);
@@ -236,7 +251,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             initZoomControl();
         }
         
-        locateCurrentPoint();
+//        locateCurrentPoint();
     }
     
     @Override
@@ -260,6 +275,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         }
         
         StaticDataModel.getInstance().clear();
+        removeLocationListener();
     }
     
     @Override
@@ -306,11 +322,9 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             showMapTypeChangeDialog();
             break;
         case R.id.warning_list:
-//            Intent intentWarning = new Intent();
-//            intentWarning.setClass(MapViewActivity.this, WarningListActivity.class);
-//            startActivity(intentWarning);
             Intent intentWarning = new Intent();
             intentWarning.setClass(MapViewActivity.this, WarningViewActivity.class);
+            intentWarning.putExtra(WarningViewActivity.ACTION_TYPE, WarningViewActivity.WARNING_TYPE);
             startActivity(intentWarning);
             break;
         case R.id.search:
@@ -321,10 +335,10 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             locateCurrentPoint();
             break;
         case R.id.command_list:
-            Intent intentCommand = new Intent();
-            //intentWarning.putExtra(strTracePointList, mTracePointList);
-            intentCommand.setClass(MapViewActivity.this, CommandListAcitvity.class);
-            startActivity(intentCommand);
+            Intent traceIntent = new Intent();
+            traceIntent.setClass(MapViewActivity.this, WarningViewActivity.class);
+            traceIntent.putExtra(WarningViewActivity.ACTION_TYPE, WarningViewActivity.TRACE_TYPE);
+            startActivity(traceIntent);
             break;
         case R.id.logout:
             SettingManager.getInstance().clearPhone();
@@ -466,18 +480,25 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             return;
         }
         
-        if (mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 
-                    0, 0, mLocationListener);
-        } else if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+//        if (mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+//            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 
+//                    2000, 0, mLocationListener);
+//        } else if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+//            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
+//                    0, 0, mLocationListener);
+//        } else {
+//            showLocationError();
+//            return;
+//        }
+        if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
-                    0, 0, mLocationListener);
+              2000, 0, mLocationListener);
         } else {
             showLocationError();
             return;
         }
         
-        mHandler.sendEmptyMessageDelayed(LBS_TIME_OUT, Config.LOCATION_TIMEOUT);
+//        mHandler.sendEmptyMessageDelayed(LBS_TIME_OUT, Config.LOCATION_TIMEOUT);
     }
     
     private void removeLocationListener() {
@@ -635,7 +656,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         info.phoneNumber = "10086";
         
         TracePointInfo infoa = new TracePointInfo();
-        infoa.geoPoint = new GeoPoint(39972036, 116315659);
+        infoa.geoPoint = new GeoPoint(39979036, 116318659);
         infoa.id = "2";
         infoa.title = "aaa";
         infoa.summary = "aaaaaa";
@@ -646,6 +667,30 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
 
         Environment.tracePointList.clear();
         Environment.tracePointList.addAll(StaticDataModel.getInstance().mTracePointList);
+    }
+    
+    private void buildTraceInfoItemList() {
+        for (TracePointInfo info : StaticDataModel.getInstance().mTracePointList) {
+            TraceInfoItem item = new TraceInfoItem();
+            item.traceInfo = info;
+            item.tipsView = View.inflate(this, R.layout.trace_info_tips_popup, null);
+            ((TextView) item.tipsView.findViewById(R.id.phone)).setText(info.phoneNumber);
+            
+            mTraceInfoItemList.add(item);
+            
+            mMapView.addView(item.tipsView, new MapView.LayoutParams(MapView.LayoutParams.WRAP_CONTENT,
+                    MapView.LayoutParams.WRAP_CONTENT
+                    , null
+                    , MapView.LayoutParams.RIGHT | MapView.LayoutParams.BOTTOM));
+        }
+    }
+    
+    private void showTraceInfoItem() {
+        for (TraceInfoItem item : mTraceInfoItemList) {
+            MapView.LayoutParams geoLP = (MapView.LayoutParams) item.tipsView.getLayoutParams();
+            geoLP.point = item.traceInfo.geoPoint;
+            mMapView.updateViewLayout(item.tipsView, geoLP);
+        }
     }
     
     private void initPopupWaringView() {
@@ -743,7 +788,15 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                                                 , location));
                 builder.append("\n");
             }
-            builder.append(String.format(getString(R.string.trace_info_distance), "0"));
+            
+            double distance = 0.0;
+            if (mCurrentGeoPoint != null) {
+                distance = this.getDistance((mCurrentGeoPoint.getLatitudeE6() * 1.0) / 1E6
+                        , (mCurrentGeoPoint.getLongitudeE6() * 1.0) / 1E6
+                        , (info.geoPoint.getLatitudeE6() * 1.0) / 1E6
+                        , (info.geoPoint.getLongitudeE6() * 1.0) / 1E6);
+            }
+            builder.append(String.format(getString(R.string.trace_info_distance), String.valueOf(distance)));
             dialog.setMessage(builder.toString());
         }
         dialog.show();
@@ -780,6 +833,29 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         mWarningEntryView = factory.inflate(R.layout.warning_dialog, null);
         mOutWarningView = (CheckedTextView) mWarningEntryView.findViewById(R.id.out_warnging);
         mInWarningView = (CheckedTextView) mWarningEntryView.findViewById(R.id.in_warnging);
+        mTraceListSelectedView = mWarningEntryView.findViewById(R.id.trace_selected);
+        mTraceListSelectedView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View paramView) {
+                int size = StaticDataModel.getInstance().mTracePointList.size();
+                String[] items = new String[size];
+                for (int index = 0; index < size; index++) {
+                    items[index] = "被控终端 : " +
+                        StaticDataModel.getInstance().mTracePointList.get(index).id;
+                    LOGD("[[showWarningRegionDialog]] item info = " + items[index]);
+                }
+
+                AlertDialog dialog = new AlertDialog.Builder(MapViewActivity.this)
+                                .setTitle(getString(R.string.title_trace_dialog))
+                                .setItems(items, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mTraceSelectedId = which;
+                                    }
+                                })
+                                .create();
+                dialog.show();
+            }
+        });
 
         mOutWarningView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -800,6 +876,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         if (hideOption) {
             mOutWarningView.setVisibility(View.GONE);
             mInWarningView.setVisibility(View.GONE);
+            mTraceListSelectedView.setVisibility(View.GONE);
         }
         
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -817,7 +894,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                     WarningRegion warning = null;
                     if (mCurrentTraceInfo != null) {
                         for (WarningRegion region : mWarningRegionList) {
-                            if (region.tracePointId == Integer.valueOf(mCurrentTraceInfo.id)) {
+                            if (region.tracePointId == Integer.valueOf(mCurrentTraceInfo.id)
+                                    && region.warningRemoteLocalType == WarningRegion.WARNING_TYPE_REMOTE) {
                                 warning = region;
                             }
                         }
@@ -837,7 +915,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                         }
                         if (warning == null) {
                             warning = new WarningRegion();
-                            warning.tracePointId = -1;
+                            warning.tracePointId = mTraceSelectedId;
                             warning.point = mCurrentFocusGeoPoint;
                             warning.warningRemoteLocalType = WarningRegion.WARNING_TYPE_LOCAL;
                             mWarningRegionList.add(warning);
@@ -870,6 +948,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                     for (WarningRegion region : mWarningRegionList) {
                         DatabaseOperator.getInstance().saveWarningInfo(region);
                     }
+                    mTraceSelectedId = -1;
                 }
             })
             .setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
@@ -906,6 +985,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private void postRefreshOverlay() {
         mMapView.postInvalidate();
         mBackKeyPressedCount = 0;
+        
+        mHandler.sendEmptyMessage(SHOW_TRACE_INFO_TIPS);
     }
     
     private void resetOverlay() {
@@ -1052,6 +1133,12 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    public double getDistance(double lat1, double lon1, double lat2, double lon2) {
+        float[] results = new float[1];
+        Location.distanceBetween(lat1, lon1, lat2, lon2, results);
+        return results[0];
     }
     
     private static void LOGD(String msg) {

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.mobile.trace.R;
+import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
 import com.mobile.trace.data_model.StaticDataModel;
 
 import android.app.AlertDialog;
@@ -21,20 +22,26 @@ import android.widget.SimpleAdapter;
 public class CommandListAcitvity extends ListActivity {
 	
 	private AlertDialog mCommandInfoDialog;
+	private int mType = -1;
+	private boolean mCommandLog;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        //Intent intent = getIntent();
-        //MapViewActivity.mTracePointList.get(0);
+        if (getIntent().getBooleanExtra(WarningViewActivity.COMMAND_LOG, false)) {
+            mCommandLog = true;
+        } else {
+            mCommandLog = false;
+        }
+        
         StaticDataModel.getInstance().commandList.add("CommandTest1");
         StaticDataModel.getInstance().commandList.add("CommandTest2");
         StaticDataModel.getInstance().commandList.add("CommandTest3");
         StaticDataModel.getInstance().commandList.add("CommandTest4");
         
         setListAdapter(new SimpleAdapter(this, getData(),
-                android.R.layout.simple_list_item_1, new String[] { "title" },//simple_list_item_1
+                android.R.layout.simple_list_item_1, new String[] { "title" },
                 new int[] { android.R.id.text1 }));
         
         showTraceInfoDialog() ;
@@ -79,22 +86,15 @@ public class CommandListAcitvity extends ListActivity {
     
     protected List getData() {
     	List<Map> myData = new ArrayList<Map>();
-    	//addItem(myData, "test name A", activityIntent("test pkg","test componentName"));
-    	//addItem(myData, "test name B", activityIntent("test pkg","test componentName"));
-    	//addItem(myData, "test name C", activityIntent("test pkg","test componentName"));
-    	int iLen = StaticDataModel.getInstance().commandList.size();
-    	for(int i = 0; i < iLen; i++){
-    		//MapViewActivity.mTracePointList.get(i).id;
-    		addItem(myData, "命令：" + StaticDataModel.getInstance().commandList.get(i), null);
+    	if (mCommandLog) {
+            int iLen = StaticDataModel.getInstance().commandList.size();
+            for (int i = 0; i < iLen; i++) {
+                addItem(myData, "命令：" + StaticDataModel.getInstance().commandList.get(i), null);
+            }
+    	} else {
     	}
     	return myData;
     }
-    
-//    protected Intent activityIntent(String pkg, String componentName) {
-//        Intent result = new Intent();
-//        result.setClassName(pkg, componentName);
-//        return result;
-//    }
     
     protected void addItem(List<Map> data, String name, Intent intent) {
         Map<String, Object> temp = new HashMap<String, Object>();

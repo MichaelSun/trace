@@ -14,6 +14,7 @@
     <string name="cur_location">我的位置</string>
     <string name="command_list">日志管理</string>
     
+    <string name="btn_trace">被控终端选择</string>
     <string name="btn_ok">确定</string>
     <string name="btn_cancel">取消</string>
     <string name="btn_send">发送</string>
@@ -52,14 +53,15 @@
     <string name="title_trace_info_default">终端信息</string>
     <string name="titile_trace_info_list">跟踪点信息</string>
     <string name="title_search_dialog">经纬度搜索</string>
+    <string name="title_trace_dialog">被控终端列表</string>
     
     <string name="text_out_warning">移出报警区域报警</string>
     <string name="text_in_warning">进入报警区域报警</string>
     
     <string name="title_warning_point" formatted="false">当前经纬度(%s %s)</string>
     
-    <string name="warning_list">警告区域管理</string>
-    <string name="location_error">地理定位错误</string>
+    <string name="warning_list">告警区域管理</string>
+    <string name="location_error">没有打开地理定位，请到设置->位置中打开GPS定位</string>
     
     <string name="tips_phone_number">请输入11位正确的手机号码</string>
     <string name="tips_exit">再按返回键退出应用程序</string>
@@ -69,6 +71,9 @@
     
     <string name="controller_info">主控终端警告区域信息</string>
     <string name="be_controlled_info">被控终端警告区域信息</string>
+ 
+ 	<string name="command_log_info">发送指令日志</string>   
+ 	<string name="warning_log_info">报警日志</string>   
     
     <string name="title_login_passwd">登录密码</string>
     
@@ -78,5 +83,8 @@
     <string name="tips_passwd_error">登录密码错误</string>
     <string name="tips_empty_passwd">密码不能为空</string>
     <string name="tips_passwd_confirm_error">两次密码输入不同</string>
+    
+    <string name="extend_category">服务器地址</string>
+    <string name="server_ip">服务器IP设置</string>
 </resources>
 

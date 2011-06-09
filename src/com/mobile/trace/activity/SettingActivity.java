@@ -3,6 +3,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -26,18 +27,22 @@ public class SettingActivity extends PreferenceActivity {
         this.findPreference("refresh_rate").setSummary(strRefreshRate + "分钟");
         this.findPreference("refresh_rate").setDefaultValue(strRefreshRate);
 
-        preferences.registerOnSharedPreferenceChangeListener(new OnSharedPreferenceChangeListener(){   
-        	
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        	if(key.equals("refresh_rate")){
-        	    strRefreshRate = sharedPreferences.getString("refresh_rate", "No preferences");
-        	    
-        	    findPreference("refresh_rate").setSummary(strRefreshRate + "分钟");
-        	    saveRefreshRate(sharedPreferences, strRefreshRate);
-        	}
-        }
+        preferences.registerOnSharedPreferenceChangeListener(new OnSharedPreferenceChangeListener() {
+
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                if (key.equals("refresh_rate")) {
+                    strRefreshRate = sharedPreferences.getString("refresh_rate", "No preferences");
+
+                    findPreference("refresh_rate").setSummary(strRefreshRate + "分钟");
+                    saveRefreshRate(sharedPreferences, strRefreshRate);
+                } else if (key.equals("server_ip")) {
+                    String data = sharedPreferences.getString("server_ip", "");
+                    findPreference("server_ip").setSummary(data);
+                }
+            }
         });
+
     }
     
     private static void LOGD(String msg) {

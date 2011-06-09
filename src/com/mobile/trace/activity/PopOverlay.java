@@ -3,8 +3,8 @@ package com.mobile.trace.activity;
 import java.util.ArrayList;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
-import android.view.View;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -36,55 +36,13 @@ public class PopOverlay extends ItemizedOverlay<OverlayItem> {
 		populate();
 	}
 	
-	@Override
-	public void draw(Canvas canvas, MapView mapView, boolean shadow) {
-//		if (!shadow) {
-//			canvas.save(LAYER_FLAGS);
-//
-//			Projection projection = mapView.getProjection();
-//			int size = overlayItems.size();
-//			Point point = new Point();
-//			Paint paint = new Paint();
-//			paint.setAntiAlias(true);
-//			OverlayItem overLayItem;
-//
-//			for (int i = 0; i < size; i++) {
-//				overLayItem = overlayItems.get(i);
-//
-//				Drawable marker = overLayItem.getMarker(0);
-//				// marker.getBounds()
-//				/* 象素点取得转换 */
-//				projection.toPixels(overLayItem.getPoint(), point);
-//
-//				if (marker != null) {
-//					boundCenterBottom(marker);
-//				}
-//
-//				/* 圆圈 */
-////				paint.setColor(Color.RED);
-//				canvas.drawCircle(point.x, point.y, 10, paint);
-//
-//				/* 标题 */
-//				String title = overLayItem.getTitle();
-//
-//				if (title != null && title.length() > 0) {
-//					paint.setColor(Color.BLACK);
-//					paint.setTextSize(15);
-//					canvas.drawText(title, point.x, point.y, paint);
-//				}
-//				
-//			}
-//
-//			canvas.restore();
-//		}
-		super.draw(canvas, mapView, false);
-	}
+    @Override
+    public void draw(Canvas canvas, MapView mapView, boolean shadow) {
+        super.draw(canvas, mapView, false);
+    }
 	
 	@Override
 	public boolean onTap(GeoPoint p, MapView mapView) {
-		
-		System.out.println(p.getLatitudeE6());
-		System.out.println(p.getLongitudeE6());
 		return super.onTap(p, mapView);
 	}
 

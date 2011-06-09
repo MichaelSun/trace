@@ -54,4 +54,13 @@
 		</CheckBoxPreference>
 	</PreferenceCategory>
 	
+	<PreferenceCategory
+		android:title="@string/extend_category">
+		<EditTextPreference
+			android:title="@string/server_ip"
+			android:key="@string/pref_server_ip"
+			android:dialogTitle="@string/server_ip" >
+		</EditTextPreference>
+	</PreferenceCategory>
+	
 </PreferenceScreen>
