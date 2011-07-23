@@ -1,10 +1,17 @@
 package com.mobile.trace.activity;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -12,6 +19,8 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -1110,22 +1119,34 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     }
     
     private void serviceTestCode() {
-        String testCommand = "{\"MsgType\":0,\"MsgValue\":{\"IMSI\":\"11111111112222222222\",\"MobilePhone\":\"12345678901\"}}";
-        String serverUrl = "http://192.168.1.3/ServiceTest/BackService.asmx?op=MonitorDeviceLoad";
+        String testCommand = "{\"MsgType\":0,\"MsgValue\":{\"IMSI\":\"11111111112222222222\",\"PhoneNum\":\"12345678901\"}}";
+        String serverUrl = "http://114.242.178.111/ServiceTest/BackService.asmx/MonitorDeviceLoad";
 
         try {
             byte[] dataEncrpty = EncryptUtils.Encrypt2Bytes(testCommand.getBytes(), "dongbinhuiasxiny");
             String dataLog = EncryptUtils.Encrypt(testCommand, "dongbinhuiasxiny");
             LOGD("[[serviceTestCode]] data log = " + dataLog);
-            HttpResponse response = InternetUtils.OpenHttpConnection(serverUrl, testCommand.getBytes("UTF-8"));
+//            HttpResponse response = InternetUtils.OpenHttpConnection(serverUrl, testCommand.getBytes());
+            HttpResponse response = InternetUtils.OpenHttpConnection(serverUrl, testCommand);
             if (response != null) {
                 LOGD("[[serviceTestCode]] response code = " + response.getStatusLine().getStatusCode());
+                String data = null;
                 if (response.getStatusLine().getStatusCode() == 200) {
-                    byte[] dataBytes = EntityUtils.toByteArray(response.getEntity());
-                    LOGD("[[serviceTestCode]] return data = " + dataBytes);
-                    String dataDecrypty = EncryptUtils.Decrypt(dataBytes, "dongbinhuiasxiny");
-                    LOGD("[[serviceTestCode]] real login data = " + dataDecrypty);
+                    InputStream in = response.getEntity().getContent();
+                    if (in != null) {
+                        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                        dbf.setNamespaceAware(true);
+                        dbf.setCoalescing(true);
+                        DocumentBuilder db = dbf.newDocumentBuilder();
+                        Document doc = db.parse(in);
+                        in.close();
+                        doc.getDocumentElement().normalize();
+                        NodeList nl = doc.getElementsByTagName("string");
+                        Node node = nl.item(0);
+                        data = node.getFirstChild().getNodeValue();
+                    }
                 }
+                LOGD("[[serviceTestCode]] data = " + data);
             } else {
                 LOGD("[[serviceTestCode]] open service interface response == null");
             }

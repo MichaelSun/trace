@@ -1,6 +1,7 @@
 package com.mobile.trace.utils;
 
 import java.io.IOException;
+import java.io.StringBufferInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,6 +16,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
@@ -50,6 +52,40 @@ public class InternetUtils {
         return null;
     }
 
+    public static HttpResponse OpenHttpConnection(String urlString, String postData) {
+        HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
+        HttpConnectionParams.setSoTimeout(params, TIMEOUT);
+        HttpConnectionParams.setSocketBufferSize(params, 8192);
+        DefaultHttpClient hc = new DefaultHttpClient(params);
+        HttpPost post = new HttpPost();
+        try {
+            post.setURI(new URI(urlString));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
+        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        nvps.add(new BasicNameValuePair("data", postData));
+        try {
+            post.setEntity(new UrlEncodedFormEntity(nvps));
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+        
+        LOGD("[[OpenHttpConnection]] open the url = " + urlString
+                + " post data = " + nvps.toString());
+        
+        try {
+            return hc.execute(post);
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
     public static HttpResponse OpenHttpConnection(String urlString, byte[] postData) {
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
@@ -63,12 +99,13 @@ public class InternetUtils {
             e.printStackTrace();
             return null;
         }
+        post.setHeader(HTTP.CONTENT_TYPE, "application/x-www-form-urlencoded");
         post.setHeader("Accept-Encoding", "gzip,deflate");
         ByteArrayEntity byteData = new ByteArrayEntity(postData);
         post.setEntity(byteData);
         
         LOGD("[[OpenHttpConnection]] open the url = " + urlString
-                + " post data = " + postData);
+                + " post data = " + byteData.toString());
         
         try {
             return hc.execute(post);
