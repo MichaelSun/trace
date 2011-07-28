@@ -58,7 +58,7 @@ public class SettingActivity extends PreferenceActivity {
     }
 	
 	public String loadPreferences(SharedPreferences sharedPreferences) {
-		strRefreshRate = sharedPreferences.getString("@string/refresh_rate", "1");
+		strRefreshRate = sharedPreferences.getString("@string/refresh_rate", "5");
 		return strRefreshRate;
 	}
 

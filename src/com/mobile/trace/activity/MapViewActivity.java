@@ -3,12 +3,13 @@ package com.mobile.trace.activity;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -19,8 +20,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -64,6 +63,7 @@ import com.mobile.trace.R;
 import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
 import com.mobile.trace.data_model.StaticDataModel;
 import com.mobile.trace.database.DatabaseOperator;
+import com.mobile.trace.model.TraceDeviceInfoModel;
 import com.mobile.trace.utils.Config;
 import com.mobile.trace.utils.EncryptUtils;
 import com.mobile.trace.utils.Environment;
@@ -137,6 +137,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private float mLongPressedSqr;
     
     private float mMetersToPixel;
+    private Timer mTraceInfoTimer;
+    private int mRefreshRate;
     
     private Location mLocation;
     private LocationManager mLocationManager;
@@ -208,6 +210,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             case SHOW_TRACE_INFO_TIPS:
                 showTraceInfoItem();
                 break;
+            case Config.DEVICE_INFOS:
+                break;
             }
         }
     };
@@ -261,11 +265,17 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         }
         
 //        locateCurrentPoint();
+        
+        TraceDeviceInfoModel.getInstance().getDeviceInfosObserver().addObserver(mHandler);
+        mRefreshRate = SettingManager.getInstance().getRefreshRate();
+        this.mTraceInfoTimer = new Timer();
+        mTraceInfoTimer.schedule(new TraceInfoTimerTask(), 5 * 1000, mRefreshRate * 60 * 1000);
     }
     
     @Override
     public void onResume() {
         super.onResume();
+        LOGD("[[onResume]]");
         
         mMetersToPixel = mProjection.metersToEquatorPixels((float) (1.0 * 1000));
         
@@ -274,6 +284,19 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         
         postRefreshOverlay();
         mBackKeyPressedCount = 0;
+        
+        int curRate = SettingManager.getInstance().getRefreshRate();
+        LOGD("[[onResume]] curRate = " + curRate + " mRefreshRate = " + mRefreshRate);
+        if (mRefreshRate != curRate) {
+            if (mTraceInfoTimer != null) {
+                mTraceInfoTimer.cancel();
+                mTraceInfoTimer = null;
+            }
+            mRefreshRate = curRate;
+            this.mTraceInfoTimer = new Timer();
+            LOGD("[[onResume]] start timer withd mRefreshRate = " + mRefreshRate);
+            mTraceInfoTimer.schedule(new TraceInfoTimerTask(), 5 * 1000, mRefreshRate * 60 * 1000);
+        }
     }
     
     @Override
@@ -285,6 +308,11 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         
         StaticDataModel.getInstance().clear();
         removeLocationListener();
+        TraceDeviceInfoModel.getInstance().getDeviceInfosObserver().removeObserver(mHandler);
+        if (mTraceInfoTimer != null) {
+            mTraceInfoTimer.cancel();
+            mTraceInfoTimer = null;
+        }
     }
     
     @Override
@@ -337,8 +365,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             startActivity(intentWarning);
             break;
         case R.id.search:
-            serviceTestCode();
-//            showSearchDialog();
+//            serviceTestCode();
+            showSearchDialog();
             break;
         case R.id.locate:
             locateCurrentPoint();
@@ -443,6 +471,12 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                 return false;
             }
         });
+    }
+    
+    private class TraceInfoTimerTask extends TimerTask {
+        public void run() {
+            TraceDeviceInfoModel.getInstance().getTraceDeviceInfos();
+        }
     }
     
     private double recountRegion(float fDisX, float fDisY){

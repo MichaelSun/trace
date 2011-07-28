@@ -46,4 +46,7 @@ public class Config {
     public static final String COMMAND_TABLE_NAME = "commad";
     public static final String COMMAND_TABLE_TRACEID = "traceid";
     public static final String COMMAND_TABLE_COMMAND = "command";
+    
+    public static final int DEVICE_LOAD = 5000;
+    public static final int DEVICE_INFOS = 5001;
 }

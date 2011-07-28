@@ -16,6 +16,9 @@ import android.widget.Toast;
 
 import com.mobile.trace.R;
 import com.mobile.trace.database.DatabaseOperator;
+import com.mobile.trace.model.DeviceLoadModel;
+import com.mobile.trace.utils.Config;
+import com.mobile.trace.utils.FetchAgent;
 import com.mobile.trace.utils.SettingManager;
 
 public class StartActivity extends Activity {
@@ -43,6 +46,15 @@ public class StartActivity extends Activity {
                 startActivity(nextIntent);
                 finish();
                 break;
+            case Config.DEVICE_LOAD:
+                int result = (Integer) msg.obj;
+                if (result == 1) {
+                    mHandler.sendEmptyMessage(SHOW_PASSWORD_DIALOG);
+                } else {
+                    Toast.makeText(StartActivity.this, R.string.login_error, Toast.LENGTH_LONG).show();
+                    finish();
+                }
+                break;
             }
         }
     };
@@ -55,8 +67,17 @@ public class StartActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.start_activity);
         
+        FetchAgent.getInstance().init(1, this.getApplicationContext());
+        DeviceLoadModel.getInstance().getDeviceLoadObserver().addObserver(mHandler);
+        
         mStartTask = new StartTask();
         mStartTask.execute();
+    }
+    
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        DeviceLoadModel.getInstance().getDeviceLoadObserver().removeObserver(mHandler);
     }
     
     private void showPasswordDialog() {
@@ -113,15 +134,15 @@ public class StartActivity extends Activity {
             DatabaseOperator.getInstance().init(getApplicationContext());
             
             try {
-                Thread.sleep(1500);
+                DeviceLoadModel.getInstance().getDeviceInfo();
             } catch (Exception e) {
             }
             
             return 0;
         }
         
-        protected void onPostExecute(Integer result) {
-            mHandler.sendEmptyMessage(SHOW_PASSWORD_DIALOG);
-        }
+//        protected void onPostExecute(Integer result) {
+//            mHandler.sendEmptyMessage(SHOW_PASSWORD_DIALOG);
+//        }
     }
 }

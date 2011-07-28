@@ -83,6 +83,7 @@
     <string name="tips_passwd_error">登录密码错误</string>
     <string name="tips_empty_passwd">密码不能为空</string>
     <string name="tips_passwd_confirm_error">两次密码输入不同</string>
+    <string name="login_error">登录失败</string>
     
     <string name="extend_category">服务器地址</string>
     <string name="server_ip">服务器IP设置</string>

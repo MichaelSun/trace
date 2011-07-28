@@ -75,8 +75,11 @@ public class SettingManager {
         }
     }
     
+    public int getRefreshRate() {
+        return Integer.valueOf(mSharedPreferences.getString(mContext.getString(R.string.refresh_rate), "5"));
+    }
+    
     private SettingManager() {
         
     }
-    
 }
