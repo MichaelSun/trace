@@ -2,6 +2,7 @@ package com.mobile.trace.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -16,9 +17,9 @@ import android.widget.Toast;
 
 import com.mobile.trace.R;
 import com.mobile.trace.database.DatabaseOperator;
+import com.mobile.trace.internet.FetchAgent;
 import com.mobile.trace.model.DeviceLoadModel;
 import com.mobile.trace.utils.Config;
-import com.mobile.trace.utils.FetchAgent;
 import com.mobile.trace.utils.SettingManager;
 
 public class StartActivity extends Activity {
@@ -27,6 +28,7 @@ public class StartActivity extends Activity {
 
     private StartTask mStartTask;
     private View mDialogView;
+    private LoginTask mLoginTask;
     
     private static final int SHOW_PASSWORD_DIALOG = 0;
     private static final int START_LOGIN = 1;
@@ -37,19 +39,23 @@ public class StartActivity extends Activity {
                 showPasswordDialog();
                 break;
             case START_LOGIN:
-                Intent nextIntent = new Intent();
                 if (SettingManager.getInstance().getLoginphone() != null) {
-                    nextIntent.setClass(StartActivity.this, MapViewActivity.class);
+                    mLoginTask = new LoginTask();
+                    mLoginTask.execute("");
                 } else {
+                    Intent nextIntent = new Intent();
                     nextIntent.setClass(StartActivity.this, LoginActivity.class);
+                    startActivity(nextIntent);
+                    finish();
                 }
-                startActivity(nextIntent);
-                finish();
                 break;
             case Config.DEVICE_LOAD:
                 int result = (Integer) msg.obj;
                 if (result == 1) {
-                    mHandler.sendEmptyMessage(SHOW_PASSWORD_DIALOG);
+                    Intent nextIntent = new Intent();
+                    nextIntent.setClass(StartActivity.this, MapViewActivity.class);
+                    startActivity(nextIntent);
+                    finish();
                 } else {
                     Toast.makeText(StartActivity.this, R.string.login_error, Toast.LENGTH_LONG).show();
                     finish();
@@ -134,15 +140,27 @@ public class StartActivity extends Activity {
             DatabaseOperator.getInstance().init(getApplicationContext());
             
             try {
-                DeviceLoadModel.getInstance().getDeviceInfo();
+//                DeviceLoadModel.getInstance().getDeviceInfo();
+                Thread.sleep(1000);
             } catch (Exception e) {
             }
             
             return 0;
         }
         
-//        protected void onPostExecute(Integer result) {
-//            mHandler.sendEmptyMessage(SHOW_PASSWORD_DIALOG);
-//        }
+        protected void onPostExecute(Integer result) {
+            mHandler.sendEmptyMessage(SHOW_PASSWORD_DIALOG);
+        }
+    }
+    
+    private class LoginTask extends AsyncTask<String, Void, Integer> {
+        protected Integer doInBackground(String...params) {
+            try {
+                DeviceLoadModel.getInstance().getDeviceInfo();
+            } catch (Exception e) {
+            }
+            
+            return 0;
+        }
     }
 }

@@ -2,7 +2,10 @@ package com.mobile.trace.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -10,11 +13,33 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.mobile.trace.R;
+import com.mobile.trace.model.DeviceLoadModel;
+import com.mobile.trace.utils.Config;
 import com.mobile.trace.utils.SettingManager;
 
 public class LoginActivity extends Activity {
 
     private EditText mEditText;
+    private LoginTask mLoginTask;
+    
+    private Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+            case Config.DEVICE_LOAD:
+                int result = (Integer) msg.obj;
+                if (result == 1) {
+                    Intent nextIntent = new Intent();
+                    nextIntent.setClass(LoginActivity.this, MapViewActivity.class);
+                    startActivity(nextIntent);
+                    finish();
+                } else {
+                    Toast.makeText(LoginActivity.this, R.string.login_error, Toast.LENGTH_LONG).show();
+                    finish();
+                }
+                break;
+            }
+        }
+    };
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,11 +65,8 @@ public class LoginActivity extends Activity {
                 if (!TextUtils.isEmpty(mEditText.getEditableText().toString())) {
                     SettingManager.getInstance().setLoginPhone(phone);
                     
-                    Intent nextIntent = new Intent();
-                    nextIntent.setClass(LoginActivity.this, MapViewActivity.class);
-//                    nextIntent.setAction("com.mobile.trace.maps");
-                    startActivity(nextIntent);
-                    finish();
+                    mLoginTask = new LoginTask();
+                    mLoginTask.execute("");
                 } else {
                     Toast.makeText(LoginActivity.this
                             , LoginActivity.this.getString(R.string.empty_phone_bumber)
@@ -52,5 +74,24 @@ public class LoginActivity extends Activity {
                 }
             }
         });
+        
+        DeviceLoadModel.getInstance().getDeviceLoadObserver().addObserver(mHandler);
+    }
+    
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        DeviceLoadModel.getInstance().getDeviceLoadObserver().removeObserver(mHandler);
+    }
+    
+    private class LoginTask extends AsyncTask<String, Void, Integer> {
+        protected Integer doInBackground(String...params) {
+            try {
+                DeviceLoadModel.getInstance().getDeviceInfo();
+            } catch (Exception e) {
+            }
+            
+            return 0;
+        }
     }
 }

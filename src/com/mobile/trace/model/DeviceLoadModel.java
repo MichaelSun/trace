@@ -8,10 +8,10 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import com.mobile.trace.engine.BaseEngine;
+import com.mobile.trace.internet.FetchAgent;
+import com.mobile.trace.internet.FetchAgent.DataFetchCallback;
+import com.mobile.trace.internet.FetchRequest;
 import com.mobile.trace.utils.Config;
-import com.mobile.trace.utils.FetchAgent;
-import com.mobile.trace.utils.FetchAgent.DataFetchCallback;
-import com.mobile.trace.utils.FetchRequest;
 import com.mobile.trace.utils.NotifyHandler;
 
 public class DeviceLoadModel implements DataFetchCallback {

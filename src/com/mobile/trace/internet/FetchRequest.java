@@ -1,8 +1,8 @@
-package com.mobile.trace.utils;
+package com.mobile.trace.internet;
 
 import android.text.TextUtils;
 
-import com.mobile.trace.utils.FetchAgent.DataFetchCallback;
+import com.mobile.trace.internet.FetchAgent.DataFetchCallback;
 
 public class FetchRequest {
     public static final int DEVICE_LOAD_TYPE = 0x01;

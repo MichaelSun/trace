@@ -1,13 +1,15 @@
-package com.mobile.trace.utils;
+package com.mobile.trace.internet;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import org.apache.http.HttpResponse;
 
 import android.content.Context;
 import android.util.Log;
+
+import com.mobile.trace.utils.Config;
+import com.mobile.trace.utils.InternetUtils;
 
 public class FetchAgent {
     private static final String TAG = "FetchAgent";
