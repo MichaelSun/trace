@@ -1,13 +1,19 @@
 package com.mobile.trace.model;
 
 import java.io.InputStream;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.util.Log;
 
+import com.google.android.maps.GeoPoint;
+import com.mobile.trace.activity.TracePointInfo;
+import com.mobile.trace.data_model.StaticDataModel;
 import com.mobile.trace.engine.BaseEngine;
 import com.mobile.trace.internet.FetchAgent;
 import com.mobile.trace.internet.FetchAgent.DataFetchCallback;
@@ -20,6 +26,21 @@ public class TraceDeviceInfoModel implements
     private static final String TAG = "TraceDeviceInfoModel";
     private static final boolean DEBUG = Config.DEBUG;
 
+    public static class ServerTraceInfo {
+        public String imsi;
+        public long time;
+        public int latitude;
+        public int logtitude;
+        public int flag;
+        
+        
+        @Override
+        public String toString() {
+            return "TraceInfo [imsi=" + imsi + ", time=" + time + ", latitude=" + latitude + ", logtitude=" + logtitude
+                    + ", flag=" + flag + "]";
+        }
+    }
+    
     static class TraceDeviceInfo {
         String imsi;
         String time;
@@ -56,8 +77,52 @@ public class TraceDeviceInfoModel implements
     @Override
     public boolean onDataFetch(InputStream in, int status, int type) {
         mTraceDeviceInfoList = TraceDeviceEngine.parser(in);
+        
         if (mTraceDeviceInfoList != null && mTraceDeviceInfoList.size() != 0) {
-            mDeviceInfosHandler.notifyAll(mDeviceInfosHandler);
+            ArrayList<ServerTraceInfo> infoList = new ArrayList<ServerTraceInfo>();
+            for (TraceDeviceInfo Orginfo : mTraceDeviceInfoList) {
+                LOGD("[[onDataFetch]] orgin device info = " + Orginfo.toString());
+                ServerTraceInfo infoItem = new ServerTraceInfo();
+                infoItem.imsi = Orginfo.imsi != null ? Orginfo.imsi.trim() : null;
+                String[] splitedInfo = Orginfo.gpsInfo != null ? Orginfo.gpsInfo.split(",") : null;
+                if (splitedInfo != null && splitedInfo.length == 11) {
+                    SimpleDateFormat dayInFormat = new SimpleDateFormat("ddMMyyHHmmss");
+                    String hourTime = splitedInfo[0].trim();
+                    hourTime = hourTime.substring(0, hourTime.lastIndexOf("."));
+                    String timeStr = splitedInfo[9].trim() + hourTime;
+                    Date date = dayInFormat.parse(timeStr, new ParsePosition(0));
+                    LOGD("[[onDataFetch]] time = " + date.toLocaleString());
+                    infoItem.time = date.getTime();
+                    String latStr = splitedInfo[1].trim();
+                    latStr = latStr.substring(0, latStr.length() - 1);
+                    LOGD("[[onDataFetch]] latStr = " + latStr + " Double = " + Double.valueOf(latStr)
+                            + " 10E4 = " + 10E4);
+                    infoItem.latitude = (int) (Double.valueOf(latStr) * 1E4);
+                    String lonStr = splitedInfo[2].trim();
+                    lonStr = lonStr.substring(0, lonStr.length() - 1);
+                    infoItem.logtitude = (int) (Double.valueOf(lonStr) * 1E4);
+                }
+                infoItem.flag = Orginfo.flag;
+                
+                infoList.add(infoItem);
+                LOGD("[[onDataFetch]] info parsed = " + infoItem.toString());
+            }
+            
+            if (infoList.size() != 0) {
+                StaticDataModel.tracePointList.clear();
+                for (ServerTraceInfo info : infoList) {
+                    TracePointInfo pointInfo = new TracePointInfo();
+                    pointInfo.id = info.imsi;
+                    pointInfo.geoPoint = new GeoPoint(info.latitude, info.logtitude);
+                    pointInfo.title = "";
+                    pointInfo.summary = "";
+                    pointInfo.phoneNumber = info.imsi;
+                    StaticDataModel.tracePointList.add(pointInfo);
+                    LOGD("[[onDataFetch]] trace point to show item info = " + pointInfo);
+                }
+            }
+            
+            mDeviceInfosHandler.notifyAll(1);
         }
         mDeviceInfosHandler.notifyAll(null);
         return true;

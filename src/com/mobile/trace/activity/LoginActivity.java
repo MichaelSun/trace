@@ -1,6 +1,7 @@
 package com.mobile.trace.activity;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,11 +22,13 @@ public class LoginActivity extends Activity {
 
     private EditText mEditText;
     private LoginTask mLoginTask;
+    private ProgressDialog mDialog;
     
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
             case Config.DEVICE_LOAD:
+                mDialog.dismiss();
                 int result = (Integer) msg.obj;
                 if (result == 1) {
                     Intent nextIntent = new Intent();
@@ -65,6 +68,9 @@ public class LoginActivity extends Activity {
                 if (!TextUtils.isEmpty(mEditText.getEditableText().toString())) {
                     SettingManager.getInstance().setLoginPhone(phone);
                     
+                    if (mDialog != null) {
+                        mDialog.show();
+                    }
                     mLoginTask = new LoginTask();
                     mLoginTask.execute("");
                 } else {
@@ -75,6 +81,7 @@ public class LoginActivity extends Activity {
             }
         });
         
+        initProgressDialog();
         DeviceLoadModel.getInstance().getDeviceLoadObserver().addObserver(mHandler);
     }
     
@@ -82,6 +89,12 @@ public class LoginActivity extends Activity {
     public void onDestroy() {
         super.onDestroy();
         DeviceLoadModel.getInstance().getDeviceLoadObserver().removeObserver(mHandler);
+    }
+
+    private void initProgressDialog() {
+        mDialog = new ProgressDialog(this);
+        mDialog.setMessage(getString(R.string.login_progress));
+        mDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
     }
     
     private class LoginTask extends AsyncTask<String, Void, Integer> {

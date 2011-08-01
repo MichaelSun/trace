@@ -9,9 +9,9 @@ import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
 public class StaticDataModel {
 	private static StaticDataModel gStaticDataModel;
 	
-	public static ArrayList<TracePointInfo> mTracePointList = new ArrayList<TracePointInfo>();
+	public static ArrayList<TracePointInfo> tracePointList = new ArrayList<TracePointInfo>();
 	public static ArrayList<String> commandList = new ArrayList<String>();
-	public static ArrayList<WarningRegion> mWarningRegionList = new ArrayList<WarningRegion>();
+	public static ArrayList<WarningRegion> warningRegionList = new ArrayList<WarningRegion>();
 	
 	public static StaticDataModel getInstance(){		
         if (gStaticDataModel == null){
@@ -21,8 +21,8 @@ public class StaticDataModel {
     }
 	
 	public void clear() {
-	    mTracePointList.clear();
+	    tracePointList.clear();
 	    commandList.clear();
-	    mWarningRegionList.clear();
+	    warningRegionList.clear();
 	}
 }

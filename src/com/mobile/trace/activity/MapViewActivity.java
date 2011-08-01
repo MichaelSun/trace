@@ -98,10 +98,9 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
 	private WarningRegion mLongPressedWarningRegionRetain;
 	private GeoPoint mCurrentFocusGeoPoint;
 	private List<Overlay> mOverLays;
-	private ItemizedOverlay<OverlayItem> mTraceOverlay;
+	private PopOverlay mTraceOverlay;
 	private SpecialPoinOverlay mSpecialOverlay;
 	private ArrayList<WarningRegion> mWarningRegionList;
-	//public static ArrayList<TracePointInfo> mTracePointList;
 	private ArrayList<GeoPoint> mSpecialPointList;
 	
 	private ArrayList<TraceInfoItem> mTraceInfoItemList = new ArrayList<TraceInfoItem>();
@@ -208,9 +207,15 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                 updateWarningInfoPopup((WarningRegion) msg.obj);
                 break;
             case SHOW_TRACE_INFO_TIPS:
-                showTraceInfoItem();
+//                showTraceInfoItem();
                 break;
             case Config.DEVICE_INFOS:
+                if (msg.obj != null) {
+                    LOGD("[[Config.DEVICE_INFOS]]");
+//                    updateTraceInfoItemPostion();
+                    resetOverlay();
+                    postRefreshOverlay();
+                }
                 break;
             }
         }
@@ -240,16 +245,17 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         
         initMapView();
         buildTracePointList();
-        buildTraceInfoItemList();
+//        updateTraceInfoItemPostion();
         
         mTraceOverlay = new PopOverlay(getResources().getDrawable(R.drawable.local_mark)
-                                , StaticDataModel.getInstance().mTracePointList);
+                                , getResources().getDrawable(R.drawable.tarce_info_tips)
+                                , StaticDataModel.tracePointList);
         mTraceOverlay.setOnFocusChangeListener(this);
         mOverLays = mMapView.getOverlays();
         mOverLays.clear();
         mOverLays.add(mTraceOverlay);
         
-	    mMapView.getController().setCenter(new GeoPoint(39971036,116314659));
+        mMapView.getController().setCenter(new GeoPoint(39971036, 116314659));
         mMapView.getController().setZoom(Environment.MAP_ZOOM_LEVEL);  
         
         mTraceListButton = findViewById(R.id.trace_list_button);
@@ -281,7 +287,6 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         
         initWarningRegionList();        
         resetOverlay();
-        
         postRefreshOverlay();
         mBackKeyPressedCount = 0;
         
@@ -639,13 +644,15 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         });
     }
     
+    @Override
     public void onFocusChanged(ItemizedOverlay overlay, OverlayItem newFocus) {
+        LOGD("[[onFocusChanged]]");
         if (mPopupView != null) {
             mPopupView.setVisibility(View.GONE);
         }
         if (newFocus != null) {
             String[] titleInfo = newFocus.getTitle().split(Config.SPLITOR);
-            for (TracePointInfo trace : StaticDataModel.getInstance().mTracePointList) {
+            for (TracePointInfo trace : StaticDataModel.tracePointList) {
                 if (trace.id.equals(titleInfo[0])) {
                     this.mCurrentTraceInfo = trace;
                     break;
@@ -705,36 +712,38 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         infoa.summary = "aaaaaa";
         infoa.phoneNumber = "10086a";
 
-        StaticDataModel.getInstance().mTracePointList.add(info);
-        StaticDataModel.getInstance().mTracePointList.add(infoa);
-
-        Environment.tracePointList.clear();
-        Environment.tracePointList.addAll(StaticDataModel.getInstance().mTracePointList);
+        StaticDataModel.tracePointList.add(info);
+        StaticDataModel.tracePointList.add(infoa);
     }
     
-    private void buildTraceInfoItemList() {
-        for (TracePointInfo info : StaticDataModel.getInstance().mTracePointList) {
-            TraceInfoItem item = new TraceInfoItem();
-            item.traceInfo = info;
-            item.tipsView = View.inflate(this, R.layout.trace_info_tips_popup, null);
-            ((TextView) item.tipsView.findViewById(R.id.phone)).setText(info.phoneNumber);
-            
-            mTraceInfoItemList.add(item);
-            
-            mMapView.addView(item.tipsView, new MapView.LayoutParams(MapView.LayoutParams.WRAP_CONTENT,
-                    MapView.LayoutParams.WRAP_CONTENT
-                    , null
-                    , MapView.LayoutParams.RIGHT | MapView.LayoutParams.BOTTOM));
-        }
-    }
+//    private void updateTraceInfoItemPostion() {
+//        for (TraceInfoItem item : mTraceInfoItemList) {
+//            mMapView.removeView(item.tipsView);
+//        }
+//        mTraceInfoItemList.clear();
+//        for (TracePointInfo info : StaticDataModel.tracePointList) {
+//            TraceInfoItem item = new TraceInfoItem();
+//            item.traceInfo = info;
+//            item.tipsView = View.inflate(this, R.layout.trace_info_tips_popup, null);
+//            ((TextView) item.tipsView.findViewById(R.id.phone)).setText(info.phoneNumber);
+//            
+//            mTraceInfoItemList.add(item);
+//            
+//            mMapView.addView(item.tipsView, new MapView.LayoutParams(MapView.LayoutParams.WRAP_CONTENT,
+//                    MapView.LayoutParams.WRAP_CONTENT
+//                    , null
+//                    , MapView.LayoutParams.RIGHT | MapView.LayoutParams.BOTTOM));
+//        }
+//    }
     
-    private void showTraceInfoItem() {
-        for (TraceInfoItem item : mTraceInfoItemList) {
-            MapView.LayoutParams geoLP = (MapView.LayoutParams) item.tipsView.getLayoutParams();
-            geoLP.point = item.traceInfo.geoPoint;
-            mMapView.updateViewLayout(item.tipsView, geoLP);
-        }
-    }
+//    private void showTraceInfoItem() {
+//        for (TraceInfoItem item : mTraceInfoItemList) {
+//            MapView.LayoutParams geoLP = (MapView.LayoutParams) item.tipsView.getLayoutParams();
+//            geoLP.point = item.traceInfo.geoPoint;
+//            LOGD("[[showTraceInfoItem]] show point = " + geoLP.point);
+//            mMapView.updateViewLayout(item.tipsView, geoLP);
+//        }
+//    }
     
     private void initPopupWaringView() {
         mPopupWarningView = View.inflate(this, R.layout.popup_warning, null);
@@ -824,9 +833,9 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                 builder.append("\n");
             }
             if (info.geoPoint != null) {
-                String location = String.valueOf((info.geoPoint.getLatitudeE6() * 1.0 / 10E6))
+                String location = String.valueOf((info.geoPoint.getLatitudeE6() * 1.0 / 1E6))
                                     + Config.SPLITOR
-                                    + String.valueOf((info.geoPoint.getLongitudeE6() * 1.0 / 10E6));
+                                    + String.valueOf((info.geoPoint.getLongitudeE6() * 1.0 / 1E6));
                 builder.append(String.format(getString(R.string.trace_info_point)
                                                 , location));
                 builder.append("\n");
@@ -880,11 +889,11 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         mTraceListSelectedView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View paramView) {
-                int size = StaticDataModel.getInstance().mTracePointList.size();
+                int size = StaticDataModel.getInstance().tracePointList.size();
                 String[] items = new String[size];
                 for (int index = 0; index < size; index++) {
                     items[index] = "被控终端 : " +
-                        StaticDataModel.getInstance().mTracePointList.get(index).id;
+                        StaticDataModel.tracePointList.get(index).id;
                     LOGD("[[showWarningRegionDialog]] item info = " + items[index]);
                 }
 
@@ -1011,12 +1020,12 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                                     })
                                     .create();
         ListView listView = (ListView) View.inflate(this,R.layout.trace_info_list, null);
-        listView.setAdapter(new TraceInfoAdapter(this, Environment.tracePointList));
+        listView.setAdapter(new TraceInfoAdapter(this, StaticDataModel.tracePointList));
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position < Environment.tracePointList.size()) {
+                if (position < StaticDataModel.tracePointList.size()) {
                     mTraceListDialog.dismiss();
-                    TracePointInfo info = Environment.tracePointList.get(position);
+                    TracePointInfo info = StaticDataModel.tracePointList.get(position);
                     showTraceInfoDialog(info);
                 }
             }
@@ -1035,6 +1044,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private void resetOverlay() {
         synchronized (mOverLays) {
             mOverLays.clear();
+            mTraceOverlay.setOverlayList(StaticDataModel.tracePointList);
             mOverLays.add(mTraceOverlay);
             if (mWarningRegionOverlay != null) {
                 mWarningRegionOverlay.setWarningRegionList(mWarningRegionList);

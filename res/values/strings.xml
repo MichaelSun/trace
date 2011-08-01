@@ -87,5 +87,7 @@
     
     <string name="extend_category">服务器地址</string>
     <string name="server_ip">服务器IP设置</string>
+    
+    <string name="login_progress">正在登录……</string>
 </resources>
 

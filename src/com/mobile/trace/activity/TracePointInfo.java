@@ -16,4 +16,11 @@ public class TracePointInfo {
     public String summary;
     
     public String phoneNumber;
+
+    @Override
+    public String toString() {
+        return "TracePointInfo [id=" + id + ", geoPoint=" + geoPoint + ", warningRegion=" + warningRegion + ", title="
+                + title + ", summary=" + summary + ", phoneNumber=" + phoneNumber + "]";
+    }
+    
 }

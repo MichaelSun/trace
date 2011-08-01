@@ -134,28 +134,28 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
 
     @Override
     public void draw(Canvas canvas, MapView mapView, boolean shadow) {
-      if (!shadow) {
-          canvas.save(LAYER_FLAGS);
+        if (!shadow) {
+            canvas.save(LAYER_FLAGS);
 
-          Projection projection = mapView.getProjection();
-          int size = mWarningPoints.size();
-          Point point = new Point();
-          Paint paint = new Paint();
-          paint.setAntiAlias(true);
-          paint.setColor(WARNING_REGION_COLOR);
-          WarningRegion region = null;
+            Projection projection = mapView.getProjection();
+            int size = mWarningPoints.size();
+            Point point = new Point();
+            Paint paint = new Paint();
+            paint.setAntiAlias(true);
+            paint.setColor(WARNING_REGION_COLOR);
+            WarningRegion region = null;
 
-          for (int i = 0; i < size; i++) {
-              region = mWarningPoints.get(i);
-              projection.toPixels(region.point, point);
+            for (int i = 0; i < size; i++) {
+                region = mWarningPoints.get(i);
+                projection.toPixels(region.point, point);
 
-              LOGD("[[draw]] >>> float region = " + region.regionPixel);
-              canvas.drawCircle(point.x, point.y, region.regionPixel, paint);
-          }
+                LOGD("[[draw]] >>> float region = " + region.regionPixel);
+                canvas.drawCircle(point.x, point.y, region.regionPixel, paint);
+            }
 
-          canvas.restore();
-      }
-        super.draw(canvas, mapView, false);
+            canvas.restore();
+        }
+//        super.draw(canvas, mapView, false);
     }
     
     
