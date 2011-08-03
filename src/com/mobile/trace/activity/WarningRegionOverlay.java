@@ -34,7 +34,7 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
         public float regionPixel;
         public float regionSquare;
         public int warningType;
-        public int tracePointId;
+        public String tracePointId;
         
         public int warningRemoteLocalType;
         
@@ -50,7 +50,7 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
                     regionPixel = Float.valueOf(infos[2]);
                     regionSquare = Float.valueOf(infos[3]);
                     warningType = Integer.valueOf(infos[4]);
-                    tracePointId = Integer.valueOf(infos[5]);
+                    tracePointId = infos[5];
                 }
             }
         }

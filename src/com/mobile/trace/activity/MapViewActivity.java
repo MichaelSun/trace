@@ -85,7 +85,6 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
 	private View mWarningPopupCommand;
 	private MapView mMapView;
 	private View mSendCommand;
-	private View mWarningCommand;
 	private View mTraceInfo;
 	private View mTraceListButton;
 	private View mWarningTips;
@@ -111,7 +110,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private CheckedTextView mOutWarningView;
     private CheckedTextView mInWarningView;
     private View mTraceListSelectedView;
-    private int mTraceSelectedId = -1;
+    private String mTraceSelectedId;
     
     private View mSearchDialogView;
     
@@ -188,7 +187,6 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private static final int LBS_TIME_OUT = 1;
     private static final int MOVE_TO_LOCATION = 2;
     private static final int SHOW_WARNINGINFO_POPUP = 3;
-    private static final int SHOW_TRACE_INFO_TIPS = 4;
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -205,9 +203,6 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                 break;
             case SHOW_WARNINGINFO_POPUP:
                 updateWarningInfoPopup((WarningRegion) msg.obj);
-                break;
-            case SHOW_TRACE_INFO_TIPS:
-//                showTraceInfoItem();
                 break;
             case Config.DEVICE_INFOS:
                 if (msg.obj != null) {
@@ -349,6 +344,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         menu.findItem(R.id.search).setIcon(android.R.drawable.ic_menu_search);
         menu.findItem(R.id.locate).setIcon(R.drawable.my_location);
         menu.findItem(R.id.command_list).setIcon(android.R.drawable.ic_menu_manage);
+        menu.findItem(R.id.about).setIcon(android.R.drawable.ic_menu_help);
         return true;
     }
     
@@ -382,12 +378,23 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             traceIntent.putExtra(WarningViewActivity.ACTION_TYPE, WarningViewActivity.TRACE_TYPE);
             startActivity(traceIntent);
             break;
+        case R.id.about:
+            showAboutDialog();
+            break;
         case R.id.logout:
             SettingManager.getInstance().clearPhone();
             finish();
             break;
         }
         return true;
+    }
+    
+    private void showAboutDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                                    .setTitle(R.string.about)
+                                    .setMessage(R.string.about_text)
+                                    .create();
+        dialog.show();
     }
     
     private void initWarningRegionList() {
@@ -669,12 +676,13 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                                             , titleInfo[0]
                                             , titleInfo[1]));
             TextView desc = (TextView) mPopupView.findViewById(R.id.map_bubbleText);
-            if (newFocus.getSnippet() == null || newFocus.getSnippet().length() == 0) {
-                desc.setVisibility(View.GONE);
-            } else {
-                desc.setVisibility(View.VISIBLE);
-                desc.setText(newFocus.getSnippet());
-            }
+            desc.setVisibility(View.GONE);
+//            if (newFocus.getSnippet() == null || newFocus.getSnippet().length() == 0) {
+//                desc.setVisibility(View.GONE);
+//            } else {
+//                desc.setVisibility(View.VISIBLE);
+//                desc.setText(newFocus.getSnippet());
+//            }
             
             Point point = new Point();
             mMapView.getProjection().toPixels(geoLP.point, point);
@@ -776,7 +784,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private void initPopupView() {
         mPopupView = View.inflate(this, R.layout.pop, null);
         mSendCommand = mPopupView.findViewById(R.id.send_command);
-        mWarningCommand = mPopupView.findViewById(R.id.warning);
+        View mWarningButon = mPopupView.findViewById(R.id.warning);
         mTraceInfo = mPopupView.findViewById(R.id.trace_info);
         
         mSendCommand.setOnClickListener(new View.OnClickListener() {
@@ -786,7 +794,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             }
         });
         
-        mWarningCommand.setOnClickListener(new View.OnClickListener() {
+        mWarningButon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showWarningRegionDialog(true);
@@ -889,7 +897,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         mTraceListSelectedView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View paramView) {
-                int size = StaticDataModel.getInstance().tracePointList.size();
+                int size = StaticDataModel.tracePointList.size();
                 String[] items = new String[size];
                 for (int index = 0; index < size; index++) {
                     items[index] = "被控终端 : " +
@@ -901,7 +909,11 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                                 .setTitle(getString(R.string.title_trace_dialog))
                                 .setItems(items, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        mTraceSelectedId = which;
+                                        if (StaticDataModel.tracePointList.size() > which) {
+                                            mTraceSelectedId = StaticDataModel.tracePointList.get(which).id;
+                                        } else {
+                                            mTraceSelectedId = null;
+                                        }
                                     }
                                 })
                                 .create();
@@ -938,15 +950,21 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                 public void onClick(DialogInterface dialog, int whichButton) {
                     EditText editor = (EditText) mWarningEntryView.findViewById(R.id.region_edit);
                     if (TextUtils.isEmpty(editor.getText().toString())) {
+                        Toast.makeText(MapViewActivity.this, R.string.waring_region_empty, Toast.LENGTH_LONG);
                         return;
                     }
                     
                     int distance = Integer.valueOf(editor.getText().toString());
+                    if (distance < 0) {
+                        Toast.makeText(MapViewActivity.this, R.string.waring_region_error, Toast.LENGTH_LONG);
+                        return;
+                    }
                     
                     WarningRegion warning = null;
                     if (mCurrentTraceInfo != null) {
                         for (WarningRegion region : mWarningRegionList) {
-                            if (region.tracePointId == Integer.valueOf(mCurrentTraceInfo.id)
+                            if (region.tracePointId != null 
+                                    && region.tracePointId.equals(mCurrentTraceInfo.id)
                                     && region.warningRemoteLocalType == WarningRegion.WARNING_TYPE_REMOTE) {
                                 warning = region;
                             }
@@ -954,7 +972,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                         if (warning == null) {
                             warning = new WarningRegion();
                             warning.point = mCurrentTraceInfo.geoPoint;
-                            warning.tracePointId = Integer.valueOf(mCurrentTraceInfo.id);
+                            warning.tracePointId = mCurrentTraceInfo.id;
                             warning.warningRemoteLocalType = WarningRegion.WARNING_TYPE_REMOTE;
                             mWarningRegionList.add(warning);
                         }
@@ -965,7 +983,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                                 warning = region;
                             }
                         }
-                        if (warning == null) {
+                        if (warning == null && mTraceSelectedId != null) {
                             warning = new WarningRegion();
                             warning.tracePointId = mTraceSelectedId;
                             warning.point = mCurrentFocusGeoPoint;
@@ -994,13 +1012,14 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                     } else {
                         mWarningRegionOverlay.setWarningRegionList(mWarningRegionList);
                     }
+                    mOverLays.remove(mWarningRegionOverlay);
                     mOverLays.add(mWarningRegionOverlay);
                     postRefreshOverlay();
                     
                     for (WarningRegion region : mWarningRegionList) {
                         DatabaseOperator.getInstance().saveWarningInfo(region);
                     }
-                    mTraceSelectedId = -1;
+                    mTraceSelectedId = null;
                 }
             })
             .setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
@@ -1037,8 +1056,6 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private void postRefreshOverlay() {
         mMapView.postInvalidate();
         mBackKeyPressedCount = 0;
-        
-        mHandler.sendEmptyMessage(SHOW_TRACE_INFO_TIPS);
     }
     
     private void resetOverlay() {

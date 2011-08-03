@@ -66,7 +66,7 @@ public class DatabaseOperator {
                     wRegion.point = new GeoPoint(Integer.valueOf(splited[0]), Integer.valueOf(splited[1]));
                     wRegion.region = Float.valueOf(region);
                     wRegion.warningType = Integer.valueOf(type);
-                    wRegion.tracePointId = Integer.valueOf(traceid);
+                    wRegion.tracePointId = traceid;
                     wRegion.warningRemoteLocalType = Integer.valueOf(rlType);
                     
                     ret.add(wRegion);

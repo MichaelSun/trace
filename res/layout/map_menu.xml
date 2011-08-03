@@ -12,6 +12,8 @@
 		android:id="@+id/command_list"/>
 	<item android:title="@string/setting"
 		android:id="@+id/setting"/>
+	<item android:title="@string/about"
+		android:id="@+id/about"/>
 	<item android:title="@string/logout" 
 		android:id="@+id/logout" />
 </menu>

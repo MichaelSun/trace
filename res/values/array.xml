@@ -28,8 +28,8 @@
     
 
     <string-array name="maptype">
-    	<item>街道</item>
-    	<item>卫星</item>
+    	<item>街道模式</item>
+    	<item>卫星模式</item>
     </string-array>
 	
 </resources>

@@ -29,6 +29,7 @@ public class StartActivity extends Activity {
     private StartTask mStartTask;
     private View mDialogView;
     private LoginTask mLoginTask;
+    private ProgressDialog mDialog;
     
     private static final int SHOW_PASSWORD_DIALOG = 0;
     private static final int START_LOGIN = 1;
@@ -40,6 +41,7 @@ public class StartActivity extends Activity {
                 break;
             case START_LOGIN:
                 if (SettingManager.getInstance().getLoginphone() != null) {
+                    mDialog.show();
                     mLoginTask = new LoginTask();
                     mLoginTask.execute("");
                 } else {
@@ -50,6 +52,7 @@ public class StartActivity extends Activity {
                 }
                 break;
             case Config.DEVICE_LOAD:
+                mDialog.dismiss();
                 int result = (Integer) msg.obj;
                 if (result == 1) {
                     Intent nextIntent = new Intent();
@@ -76,6 +79,8 @@ public class StartActivity extends Activity {
         FetchAgent.getInstance().init(1, this.getApplicationContext());
         DeviceLoadModel.getInstance().getDeviceLoadObserver().addObserver(mHandler);
         
+        initProgressDialog();
+        
         mStartTask = new StartTask();
         mStartTask.execute();
     }
@@ -84,6 +89,12 @@ public class StartActivity extends Activity {
     public void onDestroy() {
         super.onDestroy();
         DeviceLoadModel.getInstance().getDeviceLoadObserver().removeObserver(mHandler);
+    }
+    
+    private void initProgressDialog() {
+        mDialog = new ProgressDialog(this);
+        mDialog.setMessage(getString(R.string.login_progress));
+        mDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
     }
     
     private void showPasswordDialog() {

@@ -1,47 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" 
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	android:background="@drawable/welcome_bg">
-	<include android:id="@+id/login_activity_title"
+	<include
+		android:id="@+id/login_activity_title"
 		layout="@layout/title_bar" />
-    <ScrollView 
-    	android:layout_width="fill_parent" 
-    	android:layout_height="fill_parent" 
-    	android:layout_below="@id/login_activity_title"
-    	android:fillViewport="true">
-        <LinearLayout  
-        	android:layout_width="fill_parent" 
-        	android:layout_height="wrap_content"
-        	android:orientation="vertical">
-            
-            <Button android:id="@+id/do_be_controlled_warning"
-           	android:layout_width="fill_parent"
-           	android:layout_height="wrap_content"
-           	android:layout_marginLeft="8.0dip" 
-            android:layout_marginTop="30.0dip" 
-            android:layout_marginRight="8.0dip"
-            android:layout_marginBottom="10.0dip" 
-            android:gravity="center"
-           	android:text="@string/be_controlled_info"
-           	android:textColor="#ff3f3f3f" 
-           	android:textSize="18sp"
-           	android:background="@drawable/login_loginbtn_selector"
-           	/>
-         
-           <Button android:id="@+id/do_control_warning"
-           		android:layout_width="fill_parent"
-           		android:layout_height="wrap_content"
-           		android:layout_marginLeft="8.0dip" 
-            	android:layout_marginTop="30.0dip" 
-            	android:layout_marginRight="8.0dip"
-            	android:layout_marginBottom="10.0dip" 
-            	android:gravity="center"
-           		android:text="@string/controller_info"
-           		android:textColor="#ff3f3f3f" 
-           		android:textSize="18sp"
-           		android:background="@drawable/login_loginbtn_selector"
-           		/>
-           </LinearLayout>
-    </ScrollView>
+	<ScrollView
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:layout_below="@id/login_activity_title"
+		android:fillViewport="true">
+		<LinearLayout
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<Button
+				android:id="@+id/do_be_controlled_warning"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="8.0dip"
+				android:layout_marginTop="30.0dip"
+				android:layout_marginRight="8.0dip"
+				android:layout_marginBottom="10.0dip"
+				android:gravity="center"
+				android:text="@string/be_controlled_info"
+				android:textColor="#ff3f3f3f"
+				android:textSize="18sp"
+				android:background="@drawable/login_loginbtn_selector" />
+
+			<Button
+				android:id="@+id/do_control_warning"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="8.0dip"
+				android:layout_marginTop="30.0dip"
+				android:layout_marginRight="8.0dip"
+				android:layout_marginBottom="10.0dip"
+				android:gravity="center"
+				android:text="@string/controller_info"
+				android:textColor="#ff3f3f3f"
+				android:textSize="18sp"
+				android:background="@drawable/login_loginbtn_selector" />
+		</LinearLayout>
+	</ScrollView>
 </RelativeLayout>

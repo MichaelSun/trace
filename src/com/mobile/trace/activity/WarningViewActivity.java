@@ -33,6 +33,9 @@ public class WarningViewActivity extends Activity {
         
         mActionType = getIntent().getIntExtra(ACTION_TYPE, 0);
         if (mActionType == 0x00) {
+            TextView title = (TextView) findViewById(R.id.title_bar_center_text);
+            title.setText(R.string.title_warning_activity);
+            
             View beControlled = findViewById(R.id.do_be_controlled_warning);
             beControlled.setOnClickListener(new View.OnClickListener() {
                 @Override
