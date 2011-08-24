@@ -17,6 +17,7 @@ public class FetchAgent {
     
     public interface DataFetchCallback {
         boolean onDataFetch(InputStream is, int status, int type);
+        boolean onDataFetchError(int reason, int type);
     }
     
     public static FetchAgent mFetchAgent = new FetchAgent();
@@ -130,8 +131,14 @@ public class FetchAgent {
                                 rq.getType());
                 }
             }
+            
+            return;
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        
+        if (rq.getCB() != null) {
+            rq.getCB().onDataFetchError(-1, rq.getType());
         }
     }
     

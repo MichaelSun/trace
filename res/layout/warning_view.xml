@@ -30,6 +30,17 @@
 				android:textColor="#ff3f3f3f"
 				android:textSize="18sp"
 				android:background="@drawable/login_loginbtn_selector" />
+				
+			<TextView 
+				android:id="@+id/be_controlled_tips"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="8.0dip"
+				android:layout_marginTop="10.0dip"
+				android:layout_marginRight="8.0dip"
+				android:layout_marginBottom="10.0dip"
+				android:visibility="gone"
+				android:text="@string/be_controlled_tips"/>
 
 			<Button
 				android:id="@+id/do_control_warning"
@@ -44,6 +55,17 @@
 				android:textColor="#ff3f3f3f"
 				android:textSize="18sp"
 				android:background="@drawable/login_loginbtn_selector" />
+				
+			<TextView 
+				android:id="@+id/do_controlled_tips"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="8.0dip"
+				android:layout_marginTop="10.0dip"
+				android:layout_marginRight="8.0dip"
+				android:layout_marginBottom="10.0dip"
+				android:visibility="gone"
+				android:text="@string/controll_tips"/>
 		</LinearLayout>
 	</ScrollView>
 </RelativeLayout>

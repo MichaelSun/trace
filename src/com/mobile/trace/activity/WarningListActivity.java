@@ -5,22 +5,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import com.mobile.trace.R;
 import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
-import com.mobile.trace.data_model.StaticDataModel;
 import com.mobile.trace.database.DatabaseOperator;
 
-public class WarningListActivity extends ListActivity {
+public class WarningListActivity extends Activity {
 
 	private SimpleAdapter mSimpleAdapter;
 	private AlertDialog mTraceInfoDialog;
@@ -28,17 +29,23 @@ public class WarningListActivity extends ListActivity {
 	private ArrayList<WarningRegion> mWarningList;
 	private AlertDialog mDeleteTraceListDialog;
 	private int iDeletePosition;
+	private ListView mListView;
 	
 	private int mType = -1;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.setContentView(R.layout.warning_list);
+
+        TextView titleTV = (TextView) findViewById(R.id.title_bar_center_text);
         if (getIntent().getBooleanExtra(WarningViewActivity.TRACE_POINT_WARNING, false)) {
             mType = WarningRegion.WARNING_TYPE_REMOTE;
+            titleTV.setText(R.string.be_controlled_info);
         } else {
             mType = WarningRegion.WARNING_TYPE_LOCAL;
+            titleTV.setText(R.string.controller_info);
         }
         
         if (mType == WarningRegion.WARNING_TYPE_REMOTE) {
@@ -51,21 +58,21 @@ public class WarningListActivity extends ListActivity {
                 android.R.layout.simple_list_item_1, new String[] { "title" },//simple_list_item_1
                 new int[] { android.R.id.text1 });
         
-        setListAdapter(mSimpleAdapter);        
+        mListView = (ListView) findViewById(R.id.list);
+        mListView.setAdapter(mSimpleAdapter);
         showTraceInfoDialog() ;
     } 
     
     private void showTraceInfoDialog() {
         mTraceInfoDialog = new AlertDialog.Builder(this)
-                                    .setTitle(R.string.titile_trace_info_list)
+                                    .setTitle(R.string.title_trace_warning)
                                     .setNegativeButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
                                         }
                                     })
                                     .create();
-        ListView listView = getListView();
         //listView.setAdapter(new TraceInfoAdapter(this, Environment.tracePointList));
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position < mWarningList.size()) {
                 	StringBuilder builder = new StringBuilder();
@@ -101,7 +108,7 @@ public class WarningListActivity extends ListActivity {
 		                android.R.layout.simple_list_item_1, new String[] { "title" },//simple_list_item_1
 		                new int[] { android.R.id.text1 });
 		        
-		        setListAdapter(mSimpleAdapter);
+				mListView.setAdapter(mSimpleAdapter);
 		        showTraceInfoDialog() ;
             }
         })
@@ -113,7 +120,7 @@ public class WarningListActivity extends ListActivity {
         })
         .create();
 
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
 
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -137,6 +144,7 @@ public class WarningListActivity extends ListActivity {
     	for(int i = 0; i < iLen; i++) {
     		addItem(myData
     		        , "警告区域信息：" + mWarningList.get(i).point.toString()
+    		           +  "\n被控终端ID：" + mWarningList.get(i).tracePointId
     		        , null);
     	}
     	return myData;
@@ -148,6 +156,5 @@ public class WarningListActivity extends ListActivity {
         temp.put("intent", intent);
         data.add(temp);
     }
-
 
 }

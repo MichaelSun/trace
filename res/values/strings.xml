@@ -41,6 +41,7 @@
     <string name="latitude">经度</string>
     <string name="longtitude">纬度</string>
     <string name="about">关于</string>
+    <string name="help">帮助</string>
     <string name="about_text">手机定位追踪系统\n版本号：1.0</string>
     
     <string name="login_tips">请输入SIM卡对应11位手机号码</string>
@@ -56,6 +57,7 @@
     <string name="title_trace_point" formatted="false">终端:%s\n手机号:%s</string>
     <string name="title_trace_info_default">终端信息</string>
     <string name="titile_trace_info_list">被控终端信息</string>
+    <string name="title_trace_warning">告警区域信息</string>
     <string name="title_search_dialog">经纬度搜索</string>
     <string name="title_trace_dialog">被控终端列表</string>
 	<string name="title_warning_activity">告警区域管理</string>    
@@ -88,7 +90,7 @@
     <string name="tips_passwd_error">登录密码错误</string>
     <string name="tips_empty_passwd">密码不能为空</string>
     <string name="tips_passwd_confirm_error">两次密码输入不同</string>
-    <string name="login_error">登录失败</string>
+    <string name="login_error">登录失败，请检查网络是否连接</string>
     
     <string name="extend_category">服务器地址</string>
     <string name="server_ip">服务器IP设置</string>
@@ -96,5 +98,9 @@
     <string name="login_progress">正在登录……</string>
     <string name="waring_region_empty">告警半径不能为空</string>
     <string name="waring_region_error">告警半径错误</string>
+    <string name="warning_region_trace_error">请选择被控终端</string>
+    
+    <string name="be_controlled_tips">越界告警由被控终端触发，越界后，被控端会主动向主控端发出告警信息</string>
+    <string name="controll_tips">越界告警由主控终端触发，根据主控端接收到的被控端位置信息进行判断，如果越界则告警</string>
 </resources>
 

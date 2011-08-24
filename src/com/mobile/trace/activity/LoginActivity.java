@@ -99,9 +99,16 @@ public class LoginActivity extends Activity {
     
     private class LoginTask extends AsyncTask<String, Void, Integer> {
         protected Integer doInBackground(String...params) {
-            try {
-                DeviceLoadModel.getInstance().getDeviceInfo();
-            } catch (Exception e) {
+            if (!Config.LOCAL_DEBUG) {
+                try {
+                    DeviceLoadModel.getInstance().getDeviceInfo();
+                } catch (Exception e) {
+                }
+            } else {
+                Message msg = new Message();
+                msg.what = Config.DEVICE_LOAD;
+                msg.obj = 1;
+                mHandler.sendMessage(msg);
             }
             
             return 0;

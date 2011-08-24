@@ -14,6 +14,8 @@
 		android:id="@+id/setting"/>
 	<item android:title="@string/about"
 		android:id="@+id/about"/>
+	<item android:title="@string/help"
+	    android:id="@+id/help"/>
 	<item android:title="@string/logout" 
 		android:id="@+id/logout" />
 </menu>

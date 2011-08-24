@@ -65,6 +65,15 @@ public class DeviceLoadModel implements DataFetchCallback {
         return false;
     }
     
+    @Override
+    public boolean onDataFetchError(int reason, int type) {
+        if (type == FetchRequest.DEVICE_LOAD_TYPE) {
+            mDeviceLoadHandler.notifyAll(0);
+        }
+        
+        return false;
+    }
+    
     private DeviceLoadModel() {
     }
     

@@ -950,13 +950,18 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                 public void onClick(DialogInterface dialog, int whichButton) {
                     EditText editor = (EditText) mWarningEntryView.findViewById(R.id.region_edit);
                     if (TextUtils.isEmpty(editor.getText().toString())) {
-                        Toast.makeText(MapViewActivity.this, R.string.waring_region_empty, Toast.LENGTH_LONG);
+                        Toast.makeText(MapViewActivity.this, R.string.waring_region_empty, Toast.LENGTH_LONG).show();
                         return;
                     }
                     
                     int distance = Integer.valueOf(editor.getText().toString());
                     if (distance < 0) {
-                        Toast.makeText(MapViewActivity.this, R.string.waring_region_error, Toast.LENGTH_LONG);
+                        Toast.makeText(MapViewActivity.this, R.string.waring_region_error, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    
+                    if (mTraceSelectedId == null) {
+                        Toast.makeText(MapViewActivity.this, R.string.warning_region_trace_error, Toast.LENGTH_LONG).show();
                         return;
                     }
                     

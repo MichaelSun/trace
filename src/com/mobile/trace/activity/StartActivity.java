@@ -140,7 +140,13 @@ public class StartActivity extends Activity {
                                             }
                                         }
                                 })
-                                .setNegativeButton(R.string.btn_cancel, null)
+                                .setNegativeButton(R.string.btn_cancel
+                                        , new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                finish();
+                                            }
+                                        })
                                 .create();
         diaog.show();
     }
@@ -166,9 +172,16 @@ public class StartActivity extends Activity {
     
     private class LoginTask extends AsyncTask<String, Void, Integer> {
         protected Integer doInBackground(String...params) {
-            try {
-                DeviceLoadModel.getInstance().getDeviceInfo();
-            } catch (Exception e) {
+            if (!Config.LOCAL_DEBUG) {
+                try {
+                    DeviceLoadModel.getInstance().getDeviceInfo();
+                } catch (Exception e) {
+                }
+            } else {
+                Message msg = new Message();
+                msg.obj = 1;
+                msg.what = Config.DEVICE_LOAD;
+                mHandler.sendMessage(msg);
             }
             
             return 0;

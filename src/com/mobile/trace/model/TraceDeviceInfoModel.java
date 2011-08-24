@@ -127,6 +127,12 @@ public class TraceDeviceInfoModel implements
         mDeviceInfosHandler.notifyAll(null);
         return true;
     }
+    
+    @Override
+    public boolean onDataFetchError(int reason, int type) {
+        mDeviceInfosHandler.notifyAll(null);
+        return false; 
+    }
 
     private TraceDeviceInfoModel() {
     }

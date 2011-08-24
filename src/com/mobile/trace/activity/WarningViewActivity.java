@@ -58,6 +58,11 @@ public class WarningViewActivity extends Activity {
                     startActivity(intentWarning);
                 }
             });
+            
+            View tips = findViewById(R.id.be_controlled_tips);
+            tips.setVisibility(View.VISIBLE);
+            tips = findViewById(R.id.do_controlled_tips);
+            tips.setVisibility(View.VISIBLE);
         } else {
             TextView beControlled = (TextView) findViewById(R.id.do_be_controlled_warning);
             beControlled.setText(R.string.command_log_info);
