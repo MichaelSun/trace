@@ -134,6 +134,8 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
 
     @Override
     public void draw(Canvas canvas, MapView mapView, boolean shadow) {
+        LOGD("[[WarngingRegionOverlay::draw]]");
+        
         if (!shadow) {
             canvas.save(LAYER_FLAGS);
 
@@ -147,6 +149,9 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
 
             for (int i = 0; i < size; i++) {
                 region = mWarningPoints.get(i);
+                region.regionPixel = projection.metersToEquatorPixels((float) region.region * 1000);
+                region.regionSquare = region.regionPixel * region.regionPixel;
+                
                 projection.toPixels(region.point, point);
 
                 LOGD("[[draw]] >>> float region = " + region.regionPixel);

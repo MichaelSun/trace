@@ -7,12 +7,16 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -23,7 +27,7 @@ import com.mobile.trace.database.DatabaseOperator;
 
 public class WarningListActivity extends Activity {
 
-	private SimpleAdapter mSimpleAdapter;
+	private InfoAdapter mDataAdapter;
 	private AlertDialog mTraceInfoDialog;
 	
 	private ArrayList<WarningRegion> mWarningList;
@@ -54,12 +58,10 @@ public class WarningListActivity extends Activity {
             mWarningList = DatabaseOperator.getInstance().queryWarningInfoList(WarningRegion.WARNING_TYPE_LOCAL);
         }
         
-        mSimpleAdapter = new SimpleAdapter(this, getData(),
-                android.R.layout.simple_list_item_1, new String[] { "title" },//simple_list_item_1
-                new int[] { android.R.id.text1 });
+        mDataAdapter = new InfoAdapter(this, R.layout.warning_list_item, getData());
         
         mListView = (ListView) findViewById(R.id.list);
-        mListView.setAdapter(mSimpleAdapter);
+        mListView.setAdapter(mDataAdapter);
         showTraceInfoDialog() ;
     } 
     
@@ -96,19 +98,16 @@ public class WarningListActivity extends Activity {
         	public void onClick(DialogInterface dialog, int whichButton) {
 				//StaticDataModel.mWarningRegionList.remove(iDeletePosition);
         		//mWarningList.remove(iDeletePosition);
-        		mWarningList.remove(mWarningList.get(iDeletePosition));
         		DatabaseOperator.getInstance().deleteWaringInfo(mWarningList.get(iDeletePosition));
 //		        for (WarningRegion region : mWarningList) {
 //		            DatabaseOperator.getInstance().saveWarningInfo(region);
 //		        }
-		        ArrayList<WarningRegion> mWarningRegionList = DatabaseOperator.getInstance().queryWarningInfoList(mType);
+        		mWarningList = DatabaseOperator.getInstance().queryWarningInfoList(mType);
 				//mWarningList.remove(iDeletePosition);
 				//mSimpleAdapter.notifyDataSetChanged();		
-				WarningListActivity.this.mSimpleAdapter = new SimpleAdapter(WarningListActivity.this, getData(),
-		                android.R.layout.simple_list_item_1, new String[] { "title" },//simple_list_item_1
-		                new int[] { android.R.id.text1 });
+		        mDataAdapter = new InfoAdapter(WarningListActivity.this, R.layout.warning_list_item, getData());
 		        
-				mListView.setAdapter(mSimpleAdapter);
+				mListView.setAdapter(mDataAdapter);
 		        showTraceInfoDialog() ;
             }
         })
@@ -124,7 +123,6 @@ public class WarningListActivity extends Activity {
 
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				// TODO Auto-generated method stub
 //				StaticDataModel.mWarningRegionList.remove(position);
 //				mSimpleAdapter.notifyDataSetChanged();	
 				iDeletePosition = position;
@@ -138,23 +136,43 @@ public class WarningListActivity extends Activity {
 
     }
     
-    protected List getData() {
-    	List<Map> myData = new ArrayList<Map>();
+    protected ArrayList<String> getData() {
+        ArrayList<String> myData = new ArrayList<String>();
     	int iLen = mWarningList.size();
     	for(int i = 0; i < iLen; i++) {
-    		addItem(myData
-    		        , "警告区域信息：" + mWarningList.get(i).point.toString()
-    		           +  "\n被控终端ID：" + mWarningList.get(i).tracePointId
-    		        , null);
+    		myData.add("警告区域信息：" + mWarningList.get(i).point.toString()
+                       +  ";被控终端ID：" + mWarningList.get(i).tracePointId);
     	}
     	return myData;
     }
     
-    protected void addItem(List<Map> data, String name, Intent intent) {
-        Map<String, Object> temp = new HashMap<String, Object>();
-        temp.put("title", name);
-        temp.put("intent", intent);
-        data.add(temp);
+    class InfoAdapter extends ArrayAdapter<String> {
+        private int mResourceID;
+        private Context mContext;
+        private LayoutInflater mInflater;
+        
+        InfoAdapter(Context context, int resourceId, ArrayList<String> data) {
+            super(context, resourceId, data);
+            mResourceID = resourceId;
+            mContext = context;
+            mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+        
+        public View  getView(int position, View convertView, ViewGroup parent) {
+            View ret = convertView;
+            if (ret == null) {
+                ret = mInflater.inflate(mResourceID, null);
+            }
+            
+            String info = getItem(position);
+            String[] infos = info.split(";");
+            TextView tv = (TextView) ret.findViewById(R.id.info1);
+            tv.setText(infos[0]);
+            tv = (TextView) ret.findViewById(R.id.info2);
+            tv.setText(infos[1]);
+            
+            return ret;
+        }
     }
-
+    
 }

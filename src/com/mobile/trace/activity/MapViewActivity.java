@@ -137,6 +137,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private float mMetersToPixel;
     private Timer mTraceInfoTimer;
     private int mRefreshRate;
+    private float mBaseRegionPixel = -1;
     
     private Location mLocation;
     private LocationManager mLocationManager;
@@ -251,7 +252,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         mOverLays.add(mTraceOverlay);
         
         mMapView.getController().setCenter(new GeoPoint(39971036, 116314659));
-        mMapView.getController().setZoom(Environment.MAP_ZOOM_LEVEL);  
+        mMapView.getController().setZoom(Environment.MAP_INIT_ZOOM_LEVEL);  
         
         mTraceListButton = findViewById(R.id.trace_list_button);
         mTraceListButton.setOnClickListener(new View.OnClickListener() {
@@ -264,8 +265,6 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         if (Config.ZOOM_BUTTON_SUPPROT) {
             initZoomControl();
         }
-        
-//        locateCurrentPoint();
         
         TraceDeviceInfoModel.getInstance().getDeviceInfosObserver().addObserver(mHandler);
         mRefreshRate = SettingManager.getInstance().getRefreshRate();
@@ -440,16 +439,26 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                     float fDisY = ev.getY();
                     Point point = new Point();
                     mProjection.toPixels(mLongPressedWarningRegion.point, point);
+                    if (mBaseRegionPixel < 0) {
+                        mBaseRegionPixel = mLongPressedWarningRegion.regionPixel;
+                    } else {
+                        mLongPressedWarningRegion.regionPixel = mBaseRegionPixel;
+                    }
                     if (pointInRound(mLongPressedX, mLongPressedY, mLongPressedSqr, fDisX, fDisY)) {
                         // small
                         float temp = (fDisX - point.x) * (fDisX - point.x) + (fDisY - point.y) * (fDisY - point.y);
-                        float move = mLongPressedSqr - temp;
-                        mLongPressedWarningRegion.regionPixel = (float) Math.sqrt((mLongPressedWarningRegion.regionSquare - move));
+                        float move = (float) Math.sqrt(mLongPressedSqr) - (float) Math.sqrt(temp);
+                        mLongPressedWarningRegion.regionPixel = mLongPressedWarningRegion.regionPixel - move;
+                        LOGD("small the warning region, temp = " + temp + " move = " + move);
+//                        if (mLongPressedWarningRegion.regionPixel < 200) {
+//                            mLongPressedWarningRegion.regionPixel = (float) 200;
+//                        }
                     } else {
                         // large
                         float temp = (fDisX - point.x) * (fDisX - point.x) + (fDisY - point.y) * (fDisY - point.y);
-                        float move = temp - mLongPressedSqr;
-                        mLongPressedWarningRegion.regionPixel = (float) Math.sqrt((mLongPressedWarningRegion.regionSquare + move));
+                        float move = (float) Math.sqrt(temp) - (float) Math.sqrt(mLongPressedSqr);
+                        LOGD("large the warning region, temp = " + temp + " move = " + move);
+                        mLongPressedWarningRegion.regionPixel = mLongPressedWarningRegion.regionPixel + move;
                     }
 
                     if (mWarningRegionOverlay == null) {
@@ -464,7 +473,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                     
                     LOGD("[[OnTouch]] long pressed region pixel = " + mLongPressedWarningRegion.regionPixel
                             + " meter to pixel = " + mMetersToPixel
-                            + " region = " + mLongPressedWarningRegion.region);
+                            + " region = " + mLongPressedWarningRegion.region
+                            + " long pressed Sqr = " + mLongPressedSqr);
                     sendMessage(SHOW_WARNINGINFO_POPUP, mLongPressedWarningRegion);
                     resetOverlay();
                     postRefreshOverlay();
@@ -621,8 +631,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         linearLayout.addView(zoomControls);
         zoomControls.setOnZoomInClickListener(new OnClickListener() {
             public void onClick(View v) {
-                Environment.MAP_ZOOM_LEVEL = Math.min(Environment.MAP_ZOOM_LEVEL + 1
-                                                    , Environment.MAX_MAP_ZOOM_LEVEL);
+                Environment.MAP_ZOOM_LEVEL = mMapView.getZoomLevel();
+                Environment.MAP_ZOOM_LEVEL = Environment.MAP_ZOOM_LEVEL + 1;
                 mMapController.setZoom(Environment.MAP_ZOOM_LEVEL);
                 LOGD("reload overlay because the zoom in action");
                 mMetersToPixel = mProjection.metersToEquatorPixels(1000);
@@ -637,8 +647,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
 
         zoomControls.setOnZoomOutClickListener(new OnClickListener() {
             public void onClick(View v) {
-                Environment.MAP_ZOOM_LEVEL = Math.max(Environment.MAP_ZOOM_LEVEL - 1
-                                                    , Environment.MIN_MAP_ZOOM_LEVEL);
+                Environment.MAP_ZOOM_LEVEL = mMapView.getZoomLevel();
+                Environment.MAP_ZOOM_LEVEL = Environment.MAP_ZOOM_LEVEL - 1;
                 mMapController.setZoom(Environment.MAP_ZOOM_LEVEL);
                 mMetersToPixel = mProjection.metersToEquatorPixels(1000);
                 
@@ -960,6 +970,11 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                         return;
                     }
                     
+                    if (!mOutWarningView.isChecked() && !mInWarningView.isChecked()) {
+                        Toast.makeText(MapViewActivity.this, R.string.warning_in_out_select_error, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    
                     if (mTraceSelectedId == null) {
                         Toast.makeText(MapViewActivity.this, R.string.warning_region_trace_error, Toast.LENGTH_LONG).show();
                         return;
@@ -1118,12 +1133,13 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                         mLongPressedX = event.getX();
                         mLongPressedY = event.getY();      
                         mLongPressedSqr = pointDist;
+                        mBaseRegionPixel = -1;
 
                         mWarningInfoPopupView.setVisibility(View.VISIBLE);
                         MapView.LayoutParams geoLP = (MapView.LayoutParams) mPopupWarningView.getLayoutParams();
                         geoLP.point = region.point;
                         mMapView.updateViewLayout(mWarningInfoPopupView, geoLP);
-                        mMapController.animateTo(region.point);
+//                        mMapController.animateTo(region.point);
                         
                         sendMessage(SHOW_WARNINGINFO_POPUP, region);
                         return;
@@ -1149,7 +1165,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     }
     
     public void updateWarningInfoPopup(WarningRegion region) {
-        float distance = region.regionPixel / this.mMetersToPixel;
+        float distance = region.region;
         
         TextView tv = (TextView) mWarningInfoPopupView.findViewById(R.id.info);
         StringBuilder builder = new StringBuilder();

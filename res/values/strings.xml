@@ -99,6 +99,7 @@
     <string name="waring_region_empty">告警半径不能为空</string>
     <string name="waring_region_error">告警半径错误</string>
     <string name="warning_region_trace_error">请选择被控终端</string>
+    <string name="warning_in_out_select_error">请选择区域监控方式(进入/移出)</string>
     
     <string name="be_controlled_tips">越界告警由被控终端触发，越界后，被控端会主动向主控端发出告警信息</string>
     <string name="controll_tips">越界告警由主控终端触发，根据主控端接收到的被控端位置信息进行判断，如果越界则告警</string>
