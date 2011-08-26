@@ -8,6 +8,7 @@ import java.util.Map;
 import com.mobile.trace.R;
 import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
 import com.mobile.trace.data_model.StaticDataModel;
+import com.mobile.trace.model.CommandModel;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -35,11 +36,6 @@ public class CommandListAcitvity extends ListActivity {
             mCommandLog = false;
         }
         
-        StaticDataModel.getInstance().commandList.add("CommandTest1");
-        StaticDataModel.getInstance().commandList.add("CommandTest2");
-        StaticDataModel.getInstance().commandList.add("CommandTest3");
-        StaticDataModel.getInstance().commandList.add("CommandTest4");
-        
         setListAdapter(new SimpleAdapter(this, getData(),
                 android.R.layout.simple_list_item_1, new String[] { "title" },
                 new int[] { android.R.id.text1 }));
@@ -59,9 +55,9 @@ public class CommandListAcitvity extends ListActivity {
         //listView.setAdapter(new TraceInfoAdapter(this, Environment.tracePointList));
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position < StaticDataModel.getInstance().commandList.size()) {
+                if (position < CommandModel.getInstance().getCommandList().size()) {
                 	StringBuilder builder = new StringBuilder();
-                	String strCommandInfo = StaticDataModel.getInstance().commandList.get(position);
+                	String strCommandInfo = CommandModel.getInstance().getCommandList().get(position).command;
                 	builder.append(strCommandInfo);
 //                	builder.append(String.format(getString(R.string.trace_info_id)
 //                             , tracePointInfo.id) + "\n");
@@ -87,9 +83,9 @@ public class CommandListAcitvity extends ListActivity {
     protected List getData() {
     	List<Map> myData = new ArrayList<Map>();
     	if (mCommandLog) {
-            int iLen = StaticDataModel.getInstance().commandList.size();
+            int iLen = CommandModel.getInstance().getCommandList().size();
             for (int i = 0; i < iLen; i++) {
-                addItem(myData, "命令：" + StaticDataModel.getInstance().commandList.get(i), null);
+                addItem(myData, "命令：" + CommandModel.getInstance().getCommandList().get(i).command, null);
             }
     	} else {
     	}

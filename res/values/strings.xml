@@ -24,6 +24,7 @@
     
     <string name="title_command_send">选择发送指令</string>
     <string name="title_warning_region">告警区域设置</string>
+    <string name="command_send_success">指令发送成功</string>
     
     <string name="wait">正在下载信息……</string>
     <string name="logout">退出</string>

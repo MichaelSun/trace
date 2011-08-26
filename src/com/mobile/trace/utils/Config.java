@@ -43,11 +43,13 @@ public class Config {
     public static final String COMMAND_DATABASE_CREATE = "create table command "
                     + "(_id INTEGER primary key autoincrement, "
                     + "traceid TEXT not null, "
-                    + "command TEXT not null)";
+                    + "command TEXT not null, " 
+                    + "time TEXT not null)";
     
-    public static final String COMMAND_TABLE_NAME = "commad";
+    public static final String COMMAND_TABLE_NAME = "command";
     public static final String COMMAND_TABLE_TRACEID = "traceid";
     public static final String COMMAND_TABLE_COMMAND = "command";
+    public static final String COMMAND_TABLE_TIME = "time";
     
     public static final int DEVICE_LOAD = 5000;
     public static final int DEVICE_INFOS = 5001;

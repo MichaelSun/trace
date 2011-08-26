@@ -64,6 +64,8 @@ import com.mobile.trace.R;
 import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
 import com.mobile.trace.data_model.StaticDataModel;
 import com.mobile.trace.database.DatabaseOperator;
+import com.mobile.trace.model.CommandModel;
+import com.mobile.trace.model.CommandModel.CommandItem;
 import com.mobile.trace.model.TraceDeviceInfoModel;
 import com.mobile.trace.utils.Config;
 import com.mobile.trace.utils.EncryptUtils;
@@ -85,7 +87,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
 	
 	private View mWarningPopupCommand;
 	private MapView mMapView;
-	private View mSendCommand;
+	private View mSendCommandButton;
 	private View mTraceInfo;
 	private View mTraceListButton;
 	private View mWarningTips;
@@ -139,6 +141,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private Timer mTraceInfoTimer;
     private int mRefreshRate;
     private float mBaseRegionPixel = -1;
+    private String mSendCommandContext;
     
     private Location mLocation;
     private LocationManager mLocationManager;
@@ -794,11 +797,11 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     
     private void initPopupView() {
         mPopupView = View.inflate(this, R.layout.pop, null);
-        mSendCommand = mPopupView.findViewById(R.id.send_command);
+        mSendCommandButton = mPopupView.findViewById(R.id.send_command);
         View mWarningButon = mPopupView.findViewById(R.id.warning);
         mTraceInfo = mPopupView.findViewById(R.id.trace_info);
         
-        mSendCommand.setOnClickListener(new View.OnClickListener() {
+        mSendCommandButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showSingleSendCommandDialog();
@@ -874,22 +877,35 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     }
     
     private void showSingleSendCommandDialog() {
+        String[] commands = getResources().getStringArray(R.array.commands);
+        mSendCommandContext = commands[0];
         AlertDialog dialog = new AlertDialog.Builder(this)
                         .setTitle(R.string.title_command_send)
                         .setSingleChoiceItems(R.array.commands
                                     , 0
                                     , new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
+                                            String[] commands = getResources().getStringArray(R.array.commands);
+                                            mSendCommandContext = commands[whichButton];
                                         }
                         })
                         .setPositiveButton(R.string.btn_send
                                     , new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
+                                            CommandItem item = new CommandItem();
+                                            item.traceId = mCurrentTraceInfo.id;
+                                            item.command = mSendCommandContext;
+                                            item.time = String.valueOf(System.currentTimeMillis());
+                                            CommandModel.getInstance().addOneComamndItem(item);
+                                            mSendCommandContext = null;
+                                            
+                                            Toast.makeText(MapViewActivity.this, getString(R.string.command_send_success), Toast.LENGTH_SHORT).show();
                                         }
                         })
                         .setNegativeButton(R.string.btn_cancel
                                     , new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
+                                            mSendCommandContext = null;
                                         }
                         })
                        .create();

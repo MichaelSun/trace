@@ -59,8 +59,8 @@ public class PopOverlay extends ItemizedOverlay<OverlayItem> {
             Paint textPaint = new Paint();
             textPaint.setAntiAlias(true);
             textPaint.setTextSize(16);
-            textPaint.setColor(Color.BLACK);
-            int textWidth = (int) textPaint.measureText(CONST_STRING);
+            textPaint.setColor(Color.BLUE);
+            textPaint.setFakeBoldText(true);
             
             Projection projection = mapView.getProjection();
             int size = mTraceInfoList.size();
@@ -68,15 +68,16 @@ public class PopOverlay extends ItemizedOverlay<OverlayItem> {
             TracePointInfo info = null;
             for (int i = 0; i < size; i++) {
                 info = mTraceInfoList.get(i);
+                int textWidth = (int) textPaint.measureText(info.phoneNumber);
                 projection.toPixels(info.geoPoint, point);
     
-                mInfoDrawableBg.setBounds(point.x - mInfoDrawableBg.getIntrinsicWidth() - textWidth
+                mInfoDrawableBg.setBounds(point.x - textWidth - 25
                                         , point.y - mInfoDrawableBg.getIntrinsicHeight()
-                                        , point.x
+                                        , point.x - 10
                                         , point.y);
                 mInfoDrawableBg.draw(canvas);
                 canvas.drawText(info.phoneNumber
-                        , point.x - mInfoDrawableBg.getIntrinsicWidth() - textWidth + 15
+                        , point.x - textWidth - 17
                         , point.y - mInfoDrawableBg.getIntrinsicHeight() + 25
                         , textPaint);
             }

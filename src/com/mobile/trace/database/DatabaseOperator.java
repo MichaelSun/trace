@@ -136,15 +136,18 @@ public class DatabaseOperator {
         
         Cursor cursor = null;
         try {
+            LOGD("[[queryCommandLogList]] before get command list from database");
             cursor = mDBProxy.query(Config.COMMAND_TABLE_NAME, null, null, null);
             if (cursor != null) {
                 while (cursor.moveToNext()) {
                     CommandItem item = new CommandItem();
                     
-                    item.traceId = Integer.valueOf(cursor.getString(cursor.getColumnIndex(Config.COMMAND_TABLE_TRACEID)));
+                    item.traceId = cursor.getString(cursor.getColumnIndex(Config.COMMAND_TABLE_TRACEID));
                     item.command = cursor.getString(cursor.getColumnIndex(Config.COMMAND_TABLE_COMMAND));
+                    item.time = cursor.getString(cursor.getColumnIndex(Config.COMMAND_TABLE_TIME));
                     
                     ret.add(item);
+                    LOGD("[[queryCommandLogList]] command item = " + item.toString());
                 }
             }
         } catch (Exception e) {
@@ -158,11 +161,22 @@ public class DatabaseOperator {
         
         return ret;
     }
+    
+    public void deleteCommandByTime(String time) {
+        if (time == null) {
+            return;
+        }
+        String selection = Config.COMMAND_TABLE_TIME + "=?";
+        String[] selectionArgs = new String[]{ time };
+        
+        mDBProxy.delete(Config.COMMAND_TABLE_NAME, selection, selectionArgs);
+    }
      
-    public void saveCommand(int traceId, String command) {
+    public void saveCommand(String traceId, String command, String time) {
         ContentValues values = new ContentValues();
-        values.put(Config.COMMAND_TABLE_TRACEID, String.valueOf(traceId));
+        values.put(Config.COMMAND_TABLE_TRACEID, traceId);
         values.put(Config.COMMAND_TABLE_COMMAND, command);
+        values.put(Config.COMMAND_TABLE_TIME, time);
 
         mDBProxy.insert(Config.COMMAND_TABLE_NAME, values);
     }
