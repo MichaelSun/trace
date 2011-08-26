@@ -8,6 +8,7 @@ import android.view.Window;
 import android.widget.TextView;
 
 import com.mobile.trace.R;
+import com.mobile.trace.utils.Config;
 
 public class WarningViewActivity extends Activity {
 
@@ -43,7 +44,7 @@ public class WarningViewActivity extends Activity {
                   Intent intentWarning = new Intent();
                   intentWarning.setClass(WarningViewActivity.this, WarningListActivity.class);
                   intentWarning.putExtra(TRACE_POINT_WARNING, true);
-                  startActivity(intentWarning);
+                  startActivityForResult(intentWarning, Config.WARNING_LOCATE_REQUEST);
                 }
             });
             
@@ -55,7 +56,7 @@ public class WarningViewActivity extends Activity {
                     Intent intentWarning = new Intent();
                     intentWarning.setClass(WarningViewActivity.this, WarningListActivity.class);
                     intentWarning.putExtra(LOCAL_POINT_WARNING, true);
-                    startActivity(intentWarning);
+                    startActivityForResult(intentWarning, Config.WARNING_LOCATE_REQUEST);
                 }
             });
             
@@ -88,7 +89,15 @@ public class WarningViewActivity extends Activity {
                 }
             });
         }
-        
- 
+    }
+    
+    @Override
+    public void onActivityResult (int requestCode, int resultCode, Intent data) {
+        if (requestCode == Config.WARNING_LOCATE_REQUEST && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                setResult(Activity.RESULT_OK, data);
+                finish();
+            }
+        }
     }
 }

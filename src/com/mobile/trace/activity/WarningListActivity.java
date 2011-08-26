@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.mobile.trace.R;
 import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
 import com.mobile.trace.database.DatabaseOperator;
+import com.mobile.trace.utils.Config;
 
 public class WarningListActivity extends Activity {
 
@@ -34,6 +35,7 @@ public class WarningListActivity extends Activity {
 	private AlertDialog mDeleteTraceListDialog;
 	private int iDeletePosition;
 	private ListView mListView;
+	private String mSelectWarningItemInfo;
 	
 	private int mType = -1;
 	
@@ -63,13 +65,25 @@ public class WarningListActivity extends Activity {
         mListView = (ListView) findViewById(R.id.list);
         mListView.setAdapter(mDataAdapter);
         showTraceInfoDialog() ;
+        
+        setResult(Activity.RESULT_CANCELED);
     } 
     
     private void showTraceInfoDialog() {
         mTraceInfoDialog = new AlertDialog.Builder(this)
                                     .setTitle(R.string.title_trace_warning)
-                                    .setNegativeButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
+                                    .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
+                                        }
+                                    })
+                                    .setNegativeButton(R.string.btn_locate, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            Intent retIntent = new Intent();
+                                            retIntent.putExtra(Config.WARNING_LOCATION_KEY, mSelectWarningItemInfo);
+                                            setResult(Activity.RESULT_OK, retIntent);
+                                            mTraceInfoDialog.dismiss();
+                                            finish();
                                         }
                                     })
                                     .create();
@@ -80,13 +94,17 @@ public class WarningListActivity extends Activity {
                 	StringBuilder builder = new StringBuilder();
                 	WarningRegion warningInfo = mWarningList.get(position);
                 	builder.append("警告区域中心(Lat : " 
-                	            + String.valueOf((warningInfo.point.getLatitudeE6() * 1.0) / 10E6)
+                	            + String.valueOf((warningInfo.point.getLatitudeE6() * 1.0) / 1E6)
                 	            + " lon : "
-                	            + String.valueOf((warningInfo.point.getLongitudeE6() * 1.0) / 10E6)
+                	            + String.valueOf((warningInfo.point.getLongitudeE6() * 1.0) / 1E6)
                 	            + "\n");
                 	builder.append("告警半径 ： " + String.valueOf(warningInfo.region) + " 千米\n");
                 	builder.append("被控终端ID ： " + String.valueOf(warningInfo.tracePointId));
                 	mTraceInfoDialog.setMessage(builder.toString());
+                	
+                	mSelectWarningItemInfo = String.valueOf((warningInfo.point.getLatitudeE6() * 1.0) / 1E6) 
+                	                            + Config.DEFAULT_SPLIOR
+                	                            + String.valueOf((warningInfo.point.getLongitudeE6() * 1.0) / 1E6);
                 	mTraceInfoDialog.show();
                 }
             }

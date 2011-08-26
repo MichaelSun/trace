@@ -51,4 +51,10 @@ public class Config {
     
     public static final int DEVICE_LOAD = 5000;
     public static final int DEVICE_INFOS = 5001;
+    
+    public static final int WARNING_LOCATE_REQUEST = 1000;
+    
+    public static final String WARNING_LOCATION_KEY = "location";
+    
+    public static final String DEFAULT_SPLIOR = ";";
 }

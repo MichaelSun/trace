@@ -178,6 +178,11 @@ public class StartActivity extends Activity {
                 } catch (Exception e) {
                 }
             } else {
+                try {
+                    Thread.sleep(1500);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 Message msg = new Message();
                 msg.obj = 1;
                 msg.what = Config.DEVICE_LOAD;

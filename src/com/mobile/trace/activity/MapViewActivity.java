@@ -14,6 +14,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -362,7 +363,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             Intent intentWarning = new Intent();
             intentWarning.setClass(MapViewActivity.this, WarningViewActivity.class);
             intentWarning.putExtra(WarningViewActivity.ACTION_TYPE, WarningViewActivity.WARNING_TYPE);
-            startActivity(intentWarning);
+            startActivityForResult(intentWarning, Config.WARNING_LOCATE_REQUEST);
             break;
         case R.id.search:
 //            serviceTestCode();
@@ -375,7 +376,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             Intent traceIntent = new Intent();
             traceIntent.setClass(MapViewActivity.this, WarningViewActivity.class);
             traceIntent.putExtra(WarningViewActivity.ACTION_TYPE, WarningViewActivity.TRACE_TYPE);
-            startActivity(traceIntent);
+            startActivityForResult(traceIntent, Config.WARNING_LOCATE_REQUEST);
             break;
         case R.id.about:
             showAboutDialog();
@@ -1242,6 +1243,21 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         float[] results = new float[1];
         Location.distanceBetween(lat1, lon1, lat2, lon2, results);
         return results[0];
+    }
+    
+    @Override
+    public void onActivityResult (int requestCode, int resultCode, Intent data) {
+        if (requestCode == Config.WARNING_LOCATE_REQUEST && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                String locationStr = data.getStringExtra(Config.WARNING_LOCATION_KEY);
+                if (locationStr != null) {
+                    String[] splited = locationStr.split(Config.DEFAULT_SPLIOR);
+                    GeoPoint point = new GeoPoint((int) (Double.valueOf(splited[0]) * 1E6)
+                                                    , (int) (Double.valueOf(splited[1]) * 1E6));
+                    sendMoveLocationMessage(point);
+                }
+            }
+        }
     }
     
     private static void LOGD(String msg) {

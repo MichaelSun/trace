@@ -36,8 +36,8 @@
 	    android:minHeight="?android:attr/listPreferredItemHeight"
 	    android:textAppearance="?android:attr/textAppearanceMedium"
 	    android:gravity="center_vertical"
-	    android:paddingLeft="12dip"
-	    android:paddingRight="7dip"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
 	    android:checkMark="@android:drawable/btn_radio"
 	    android:ellipsize="marquee"
 	   	android:text="@string/text_out_warning"/>
@@ -49,8 +49,8 @@
 	    android:minHeight="?android:attr/listPreferredItemHeight"
 	    android:textAppearance="?android:attr/textAppearanceMedium"
 	    android:gravity="center_vertical"
-	    android:paddingLeft="12dip"
-	    android:paddingRight="7dip"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
 	    android:checkMark="@android:drawable/btn_radio"
 	    android:ellipsize="marquee"
 	    android:text="@string/text_in_warning"/>
@@ -59,8 +59,8 @@
 		android:id="@+id/trace_selected"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-	    android:paddingLeft="12dip"
-	    android:paddingRight="7dip"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
 	    android:text="@string/btn_trace">
 	</Button>
 </LinearLayout>
