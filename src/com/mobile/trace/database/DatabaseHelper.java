@@ -20,17 +20,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(Config.TRACE_DATABASE_CREATE);
         db.execSQL(Config.WARNING_DATABASE_CREATE);
         db.execSQL(Config.COMMAND_DATABASE_CREATE);
+        db.execSQL(Config.TRACE_INFO_DATABASE_CREATE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if(newVersion <= 2) {
-            db.execSQL("DROP TABLE IF EXISTS " + Config.TRACE_DATABASE_CREATE);
             db.execSQL("DROP TABLE IF EXISTS " + Config.WARNING_DATABASE_CREATE);
             db.execSQL("DROP TABLE IF EXISTS " + Config.COMMAND_DATABASE_CREATE);
+            db.execSQL("DROP TABLE IF EXISTS " + Config.TRACE_INFO_DATABASE_CREATE);
             onCreate(db);
         }
     }

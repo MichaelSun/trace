@@ -14,17 +14,6 @@ public class Config {
     
     public static final String WARNING_INFO_SPLIT = ";";
     
-    public static final String TRACE_DATABASE_CREATE = "create table trace " 
-                    + "(_id INTEGER primary key autoincrement, "
-                    + "traceid TEXT not null,  " 
-                    + "phone TEXT not null, " 
-                    + "point TEXT not null);";
-    
-    public static final String TRACE_TABLE_NAME = "trace";
-    public static final String TRACE_TABLE_ID = "traceid";
-    public static final String TRACE_TABLE_PHONE = "phone";
-    public static final String TRACE_TABLE_POINT = "point";
-    
     public static final String WARNING_DATABASE_CREATE = "create table warning "
                     + "(_id INTEGER primary key autoincrement, "
                     + "point TEXT not null, "
@@ -51,6 +40,23 @@ public class Config {
     public static final String COMMAND_TABLE_COMMAND = "command";
     public static final String COMMAND_TABLE_TIME = "time";
     
+    public static final String TRACE_INFO_DATABASE_CREATE = "create table traceinfo"
+    		        + "(_id INTEGER primary key autoincrement, "
+    		        + "traceid TEXT not null, " +
+    		        "point TEXT not null, " +
+    		        "title TEXT not null, " +
+    		        "summary TEXT not null, " +
+    		        "phone TEXT not null, " +
+    		        "imsi TEXT not null)";
+    
+    public static final String TRACE_INFO_TABLE_NAME = "traceinfo";
+    public static final String TRACE_INFO_ID = "traceid";
+    public static final String TRACE_INFO_POINT = "point";
+    public static final String TRACE_INFO_TITLE = "title";
+    public static final String TRACE_INFO_SUMMARY = "summary";
+    public static final String TRACE_INFO_PHONE = "phone";
+    public static final String TRACE_INFO_IMSI = "imsi";
+    
     public static final int DEVICE_LOAD = 5000;
     public static final int DEVICE_INFOS = 5001;
     
@@ -59,4 +65,6 @@ public class Config {
     public static final String WARNING_LOCATION_KEY = "location";
     
     public static final String DEFAULT_SPLIOR = ";";
+    
+    public static final String DATABSE_EMPTY_STRING = "!";
 }

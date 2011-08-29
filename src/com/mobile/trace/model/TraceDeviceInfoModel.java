@@ -13,7 +13,8 @@ import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.mobile.trace.activity.TracePointInfo;
-import com.mobile.trace.data_model.StaticDataModel;
+import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
+import com.mobile.trace.database.DatabaseOperator;
 import com.mobile.trace.engine.BaseEngine;
 import com.mobile.trace.internet.FetchAgent;
 import com.mobile.trace.internet.FetchAgent.DataFetchCallback;
@@ -41,7 +42,7 @@ public class TraceDeviceInfoModel implements
         }
     }
     
-    static class TraceDeviceInfo {
+    static class TraceDeviceInfoForServer {
         String imsi;
         String time;
         String cellId;
@@ -55,7 +56,10 @@ public class TraceDeviceInfoModel implements
         }
     }
     
-    private ArrayList<TraceDeviceInfo> mTraceDeviceInfoList;
+    private ArrayList<TraceDeviceInfoForServer> mTraceDeviceInfoForServerList;
+    private ArrayList<TracePointInfo> mTraceInfoList;
+    private ArrayList<WarningRegion> mRemoteWarningRegionList;
+    private ArrayList<WarningRegion> mLocalWarningRegionList;
     private static TraceDeviceInfoModel gTraceDeviceInfoModel = new TraceDeviceInfoModel();
     private NotifyHandler mDeviceInfosHandler = new NotifyHandler(Config.DEVICE_INFOS);
     
@@ -67,20 +71,98 @@ public class TraceDeviceInfoModel implements
         return mDeviceInfosHandler;
     }
     
-    public void getTraceDeviceInfos() {
+    public void fetchTraceInfoFromServer() {
         String testData = "{\"MsgType\":2,\"MsgValue\":{\"IMSI\":\"22222222222222\"}}";
         FetchRequest rq = FetchRequest.create(FetchRequest.DEVICE_INFOS_TYPE, testData, this);
         
         FetchAgent.getInstance().addRequest(rq);
     }
     
+    public ArrayList<TracePointInfo> getTracePointInfo() {
+        return mTraceInfoList;
+    }
+    
+    public ArrayList<WarningRegion> getLocalWarninRegion() {
+        return mLocalWarningRegionList;
+    }
+    
+    public void addTracePointInfo(TracePointInfo info) {
+        if (info != null) {
+            boolean hasExists = false;
+            for (TracePointInfo item : mTraceInfoList) {
+                if (item.id.equals(info.id)) {
+                    hasExists = true;
+                }
+            }
+            
+            if (!hasExists) {
+                mTraceInfoList.add(info);
+                DatabaseOperator.getInstance().saveTraceInfo(info);
+                constructWarngingRegionForTracePoint(info);
+            }
+        }
+    }
+    
+    public void addLocalWarningRegion(WarningRegion region) {
+        if (region != null) {
+            if (!mLocalWarningRegionList.contains(region)) {
+                mLocalWarningRegionList.add(region);
+            }
+            DatabaseOperator.getInstance().saveWarningInfo(region);
+            for (TracePointInfo info : mTraceInfoList) {
+                if (info.id.equals(region.tracePointId)) {
+                    if (info.localWarningRegion == null) {
+                        info.localWarningRegion = new ArrayList<WarningRegion>();
+                    }
+                    info.localWarningRegion.add(region);
+                }
+            }
+        }
+    }
+    
+    public void removeLocalWarningRegion(WarningRegion region) {
+        if (region != null) {
+            DatabaseOperator.getInstance().deleteWaringInfo(region);
+            String geoInfo = String.valueOf(region.point.getLatitudeE6()) + Config.SPLITOR
+                    + String.valueOf(region.point.getLongitudeE6());
+            WarningRegion regionRemove = null;
+            for (int index = 0; index < mLocalWarningRegionList.size(); ++index) {
+                WarningRegion r = mLocalWarningRegionList.get(index);
+                String geoStr = String.valueOf(r.point.getLatitudeE6()) + Config.SPLITOR
+                        + String.valueOf(r.point.getLongitudeE6());
+                if (geoStr.equals(geoInfo)) {
+                    regionRemove = r;
+                    break;
+                }
+            }
+            if (regionRemove != null) {
+                mLocalWarningRegionList.remove(regionRemove);
+            }
+            for (TracePointInfo info : mTraceInfoList) {
+                if (info.localWarningRegion != null) {
+                    info.localWarningRegion.remove(region);
+                }
+            }
+        }
+    }
+    
+    public void flushWarningRegion() {
+        for (WarningRegion region : mLocalWarningRegionList) {
+            DatabaseOperator.getInstance().saveWarningInfo(region);
+        }
+        
+        for (WarningRegion region : mRemoteWarningRegionList) {
+            DatabaseOperator.getInstance().saveWarningInfo(region);
+        }
+    }
+    
     @Override
     public boolean onDataFetch(InputStream in, int status, int type) {
-        mTraceDeviceInfoList = TraceDeviceEngine.parser(in);
+        mTraceDeviceInfoForServerList = TraceDeviceEngine.parser(in);
         
-        if (mTraceDeviceInfoList != null && mTraceDeviceInfoList.size() != 0) {
+        if (mTraceDeviceInfoForServerList != null && mTraceDeviceInfoForServerList.size() != 0) {
             ArrayList<ServerTraceInfo> infoList = new ArrayList<ServerTraceInfo>();
-            for (TraceDeviceInfo Orginfo : mTraceDeviceInfoList) {
+            for (TraceDeviceInfoForServer Orginfo : mTraceDeviceInfoForServerList) {
                 LOGD("[[onDataFetch]] orgin device info = " + Orginfo.toString());
                 ServerTraceInfo infoItem = new ServerTraceInfo();
                 infoItem.imsi = Orginfo.imsi != null ? Orginfo.imsi.trim() : null;
@@ -109,7 +191,8 @@ public class TraceDeviceInfoModel implements
             }
             
             if (infoList.size() != 0) {
-                StaticDataModel.tracePointList.clear();
+                DatabaseOperator.getInstance().deleteAllTraceInfo();
+                mTraceInfoList.clear();
                 for (ServerTraceInfo info : infoList) {
                     TracePointInfo pointInfo = new TracePointInfo();
                     pointInfo.id = info.imsi;
@@ -117,7 +200,12 @@ public class TraceDeviceInfoModel implements
                     pointInfo.title = "";
                     pointInfo.summary = "";
                     pointInfo.phoneNumber = info.imsi;
-                    StaticDataModel.tracePointList.add(pointInfo);
+                    pointInfo.imsi = info.imsi;
+                    constructWarngingRegionForTracePoint(pointInfo);
+                    
+                    DatabaseOperator.getInstance().saveTraceInfo(pointInfo);
+                    mTraceInfoList.add(pointInfo);
+                    
                     LOGD("[[onDataFetch]] trace point to show item info = " + pointInfo);
                 }
             }
@@ -134,12 +222,39 @@ public class TraceDeviceInfoModel implements
         return false; 
     }
 
+    private void constructWarngingRegionForTracePoint(TracePointInfo info) {
+        for (WarningRegion region : mRemoteWarningRegionList) {
+            if (region.tracePointId.equals(info.id)) {
+                if (info.remoteWaringRegion == null) {
+                    info.remoteWaringRegion = new ArrayList<WarningRegion>();
+                }
+                info.remoteWaringRegion.add(region);
+            }
+        }
+        
+        for (WarningRegion region : mLocalWarningRegionList) {
+            if (region.tracePointId.equals(info.id)) {
+                if (info.localWarningRegion == null) {
+                    info.localWarningRegion = new ArrayList<WarningRegion>();
+                }
+                info.localWarningRegion.add(region);
+            }
+        }
+    }
+    
     private TraceDeviceInfoModel() {
+        mTraceInfoList = DatabaseOperator.getInstance().queryTracePointInfoList();
+        mRemoteWarningRegionList = DatabaseOperator.getInstance().queryWarningInfoList(WarningRegion.WARNING_TYPE_REMOTE);
+        mLocalWarningRegionList = DatabaseOperator.getInstance().queryWarningInfoList(WarningRegion.WARNING_TYPE_LOCAL);
+        
+        for (TracePointInfo info : mTraceInfoList) {
+            constructWarngingRegionForTracePoint(info);
+        }
     }
     
     static class TraceDeviceEngine extends BaseEngine {
-        static ArrayList<TraceDeviceInfo> parser(InputStream in) {
-            ArrayList<TraceDeviceInfo> ret = new ArrayList<TraceDeviceInfo>();
+        static ArrayList<TraceDeviceInfoForServer> parser(InputStream in) {
+            ArrayList<TraceDeviceInfoForServer> ret = new ArrayList<TraceDeviceInfoForServer>();
             String data = BaseEngine.getJSonContextData(in);
             LOGD("[[parser]] data = " + data);
             try {
@@ -150,7 +265,7 @@ public class TraceDeviceInfoModel implements
                     for (int index = 0; index < jsonArray.length(); ++index) {
                         obj = jsonArray.getJSONObject(index);
                         if (obj != null) {
-                            TraceDeviceInfo info = new TraceDeviceInfo();
+                            TraceDeviceInfoForServer info = new TraceDeviceInfoForServer();
                             info.imsi = obj.optString("IMSI");
                             info.time = obj.optString("Date");
                             info.cellId = obj.optString("CellId");

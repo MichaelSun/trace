@@ -5,11 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.mobile.trace.R;
-import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
-import com.mobile.trace.data_model.StaticDataModel;
-import com.mobile.trace.model.CommandModel;
-
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
@@ -19,6 +14,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+
+import com.mobile.trace.R;
+import com.mobile.trace.model.CommandModel;
 
 public class CommandListAcitvity extends ListActivity {
 	

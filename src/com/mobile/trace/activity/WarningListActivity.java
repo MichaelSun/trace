@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.mobile.trace.R;
 import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
 import com.mobile.trace.database.DatabaseOperator;
+import com.mobile.trace.model.TraceDeviceInfoModel;
 import com.mobile.trace.utils.Config;
 
 public class WarningListActivity extends Activity {
@@ -114,14 +115,9 @@ public class WarningListActivity extends Activity {
         .setTitle(R.string.titile_trace_info_list)
         .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener(){
         	public void onClick(DialogInterface dialog, int whichButton) {
-				//StaticDataModel.mWarningRegionList.remove(iDeletePosition);
-        		//mWarningList.remove(iDeletePosition);
-        		DatabaseOperator.getInstance().deleteWaringInfo(mWarningList.get(iDeletePosition));
-//		        for (WarningRegion region : mWarningList) {
-//		            DatabaseOperator.getInstance().saveWarningInfo(region);
-//		        }
+        		TraceDeviceInfoModel.getInstance().removeLocalWarningRegion(mWarningList.get(iDeletePosition));
         		mWarningList = DatabaseOperator.getInstance().queryWarningInfoList(mType);
-				//mWarningList.remove(iDeletePosition);
+        		//mWarningList.remove(iDeletePosition);
 				//mSimpleAdapter.notifyDataSetChanged();		
 		        mDataAdapter = new InfoAdapter(WarningListActivity.this, R.layout.warning_list_item, getData());
 		        

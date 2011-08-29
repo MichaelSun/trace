@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
+import com.mobile.trace.activity.TracePointInfo;
 import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
 import com.mobile.trace.model.CommandModel.CommandItem;
 import com.mobile.trace.utils.Config;
@@ -177,6 +179,85 @@ public class DatabaseOperator {
         values.put(Config.COMMAND_TABLE_TRACEID, traceId);
         values.put(Config.COMMAND_TABLE_COMMAND, command);
         values.put(Config.COMMAND_TABLE_TIME, time);
+
+        mDBProxy.insert(Config.COMMAND_TABLE_NAME, values);
+    }
+    
+    public ArrayList<TracePointInfo> queryTracePointInfoList() {
+        ArrayList<TracePointInfo> ret = new ArrayList<TracePointInfo>();
+        
+        Cursor cursor = null;
+        try {
+            LOGD("[[queryTracePointInfoList]]");
+            cursor = mDBProxy.query(Config.TRACE_INFO_TABLE_NAME, null, null, null);
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    TracePointInfo info = new TracePointInfo();
+                    
+                    info.id = cursor.getString(cursor.getColumnIndex(Config.TRACE_INFO_ID));
+                    info.title = cursor.getString(cursor.getColumnIndex(Config.TRACE_INFO_TITLE));
+                    info.summary = cursor.getString(cursor.getColumnIndex(Config.TRACE_INFO_SUMMARY));
+                    info.phoneNumber = cursor.getString(cursor.getColumnIndex(Config.TRACE_INFO_PHONE));
+                    info.imsi = cursor.getString(cursor.getColumnIndex(Config.TRACE_INFO_IMSI));
+                    String point = cursor.getString(cursor.getColumnIndex(Config.TRACE_INFO_POINT));
+                    
+                    String[] splited = point.split(Config.SPLITOR);
+                    info.geoPoint = new GeoPoint(Integer.valueOf(splited[0]), Integer.valueOf(splited[1]));
+                    
+                    if (info.title.equals(Config.DATABSE_EMPTY_STRING)) {
+                        info.title = "";
+                    }
+                    if (info.summary.equals(Config.DATABSE_EMPTY_STRING)) {
+                        info.summary = "";
+                    }
+                    if (info.imsi.equals(Config.DATABSE_EMPTY_STRING)) {
+                        info.imsi = "";
+                    }
+                    
+                    ret.add(info);
+                    LOGD("[[queryTracePointInfoList]] TraceInfo item = " + info.toString());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+                cursor = null;
+            }
+        }
+        return ret;
+    }
+    
+    public void deleteTraceInfo(TracePointInfo info) {
+        if (info == null || info.id == null) {
+            return;
+        }
+        
+        String selection = Config.TRACE_INFO_ID + "=?";
+        String[] selectionArgs = new String[]{ info.id };
+
+        mDBProxy.delete(Config.TRACE_INFO_TABLE_NAME, selection, selectionArgs);
+    }
+    
+    public void deleteAllTraceInfo() {
+        mDBProxy.delete(Config.TRACE_INFO_TABLE_NAME, null, null);
+    }
+    
+    public void saveTraceInfo(TracePointInfo info) {
+        if (info == null || info.id == null) {
+            return;
+        }
+        
+        ContentValues values = new ContentValues();
+        values.put(Config.TRACE_INFO_ID, info.id);
+        values.put(Config.TRACE_INFO_IMSI, (!TextUtils.isEmpty(info.imsi) ? info.imsi : Config.DATABSE_EMPTY_STRING));
+        values.put(Config.TRACE_INFO_PHONE, info.phoneNumber);
+        values.put(Config.TRACE_INFO_SUMMARY, (!TextUtils.isEmpty(info.summary) ? info.summary : Config.DATABSE_EMPTY_STRING));
+        values.put(Config.TRACE_INFO_TITLE, (!TextUtils.isEmpty(info.title) ? info.title : Config.DATABSE_EMPTY_STRING));
+        String geoInfo = String.valueOf(info.geoPoint.getLatitudeE6()) + Config.SPLITOR
+                + String.valueOf(info.geoPoint.getLongitudeE6());
+        values.put(Config.TRACE_INFO_POINT, geoInfo);
 
         mDBProxy.insert(Config.COMMAND_TABLE_NAME, values);
     }
