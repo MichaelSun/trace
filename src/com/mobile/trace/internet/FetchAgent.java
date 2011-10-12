@@ -123,7 +123,7 @@ public class FetchAgent {
         LOGD("[[doWork]]  FetchRequest info = " + rq.toString());
         try {
             HttpResponse r = InternetUtils.OpenHttpConnection(rq.getUrl(), rq.getPostData());
-            if (r != null) {
+            if (r != null && r.getStatusLine().getStatusCode() == 200) {
                 if (rq.getCB() != null) {
                     InputStream data = r.getEntity() != null ? r.getEntity().getContent() : null;
                     rq.getCB().onDataFetch(data,

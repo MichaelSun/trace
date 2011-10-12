@@ -5,6 +5,8 @@ public class Config {
     public static final boolean LOCAL_DEBUG = true;
     
     public static final boolean DEBUG = true;
+    
+    public static final String BASE_SERVER_IP = "114.242.178.111";
  
     public static final String SPLITOR = ";";
     

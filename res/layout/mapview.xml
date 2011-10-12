@@ -23,14 +23,14 @@
     android:layout_height="fill_parent">
     <!-- sunguoqing home key : 0WYabry-9yhgrfHJ1lb1852GYgEkamHCC2alzEA -->
     <!-- sun guoqing key : 0WYabry-9yhhjPvLpo3R1J0egF6_gFCD8LGkqGA -->
-    <!-- liyilu office ket : 0WYabry-9yhhjPvLpo3R1J0egF6_gFCD8LGkqGA -->
+	<!-- snguoqing mac ket : 0WYabry-9yhgu1fJDRgaex8wvZrhdSmvP5TwrCw -->
     <com.google.android.maps.MapView
         android:id="@+id/map"
         android:layout_width="fill_parent" 
         android:layout_height="fill_parent"
         android:enabled="true"
         android:clickable="true"
-        android:apiKey="0WYabry-9yhhjPvLpo3R1J0egF6_gFCD8LGkqGA" />
+        android:apiKey="0WYabry-9yhgu1fJDRgaex8wvZrhdSmvP5TwrCw" />
 			<LinearLayout 
 				android:id="@+id/zoomview"
 				android:layout_width="wrap_content" 

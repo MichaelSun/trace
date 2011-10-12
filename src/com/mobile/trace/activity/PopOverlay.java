@@ -2,6 +2,7 @@ package com.mobile.trace.activity;
 
 import java.util.ArrayList;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -12,6 +13,7 @@ import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
+import com.mobile.trace.R;
 import com.mobile.trace.utils.Config;
 
 public class PopOverlay extends ItemizedOverlay<OverlayItem> {
@@ -19,6 +21,7 @@ public class PopOverlay extends ItemizedOverlay<OverlayItem> {
 	private Drawable mMarkDrawable;
 	private Drawable mInfoDrawableBg;
 	private ArrayList<TracePointInfo> mTraceInfoList;
+	private Context mContext;
 	
 	private static final String CONST_STRING = "12345678901";
 	
@@ -27,13 +30,14 @@ public class PopOverlay extends ItemizedOverlay<OverlayItem> {
 
     private final ArrayList<OverlayItem> overlayItems = new ArrayList<OverlayItem>();
 	
-	public PopOverlay(Drawable defaultMarker, Drawable infoBg, ArrayList<TracePointInfo> traceList) {
+	public PopOverlay(Context context, Drawable defaultMarker, Drawable infoBg, ArrayList<TracePointInfo> traceList) {
 		super(boundCenterBottom(defaultMarker));
 //		mMarkDrawable = boundCenterBottom(defaultMarker);
 		mMarkDrawable = defaultMarker;
 		mInfoDrawableBg = infoBg;
 		mTraceInfoList = new ArrayList<TracePointInfo>();
 		mTraceInfoList.addAll(traceList);
+		mContext = context;
 		
 		populate();
 	}
@@ -68,7 +72,11 @@ public class PopOverlay extends ItemizedOverlay<OverlayItem> {
             TracePointInfo info = null;
             for (int i = 0; i < size; i++) {
                 info = mTraceInfoList.get(i);
-                int textWidth = (int) textPaint.measureText(info.phoneNumber);
+                
+                String showText = String.format(mContext.getString(R.string.title_trace_point)
+                                            , info.id
+                                            , info.phoneNumber);
+                int textWidth = (int) textPaint.measureText(showText);
                 projection.toPixels(info.geoPoint, point);
     
                 mInfoDrawableBg.setBounds(point.x - textWidth - 25
@@ -76,7 +84,7 @@ public class PopOverlay extends ItemizedOverlay<OverlayItem> {
                                         , point.x - 10
                                         , point.y);
                 mInfoDrawableBg.draw(canvas);
-                canvas.drawText(info.phoneNumber
+                canvas.drawText(showText
                         , point.x - textWidth - 17
                         , point.y - mInfoDrawableBg.getIntrinsicHeight() + 25
                         , textPaint);

@@ -156,6 +156,10 @@ public class StartActivity extends Activity {
             SettingManager.getInstance().init(getApplicationContext());
             DatabaseOperator.getInstance().init(getApplicationContext());
             
+            if (SettingManager.getInstance().getServerIP() == null) {
+                SettingManager.getInstance().setServerIP(Config.BASE_SERVER_IP);
+            }
+            
             try {
 //                DeviceLoadModel.getInstance().getDeviceInfo();
                 Thread.sleep(1000);

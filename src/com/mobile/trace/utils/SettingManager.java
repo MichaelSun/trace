@@ -31,6 +31,24 @@ public class SettingManager {
         mEditor = mSharedPreferences.edit();
     }
     
+    public String getServerIP() {
+        return mSharedPreferences.getString(mContext.getString(R.string.pref_server_ip), null);
+    }
+    
+    public void setServerIP(String ip) {
+        mEditor.putString(mContext.getString(R.string.pref_server_ip), ip);
+        mEditor.commit();
+    }
+    
+    public void setRefreshRate(String rate) {
+        mEditor.putString(mContext.getString(R.string.pref_refresh_rate), rate);
+        mEditor.commit();
+    }
+    
+    public int getRefreshRate() {
+        return Integer.valueOf(mSharedPreferences.getString(mContext.getString(R.string.pref_refresh_rate), "5"));
+    }
+    
     public void setLoginPassword(String passwd) {
         mEditor.putString(mContext.getString(R.string.login_passwd), passwd);
         mEditor.commit();
@@ -73,10 +91,6 @@ public class SettingManager {
                 warningList.add(r);
             }
         }
-    }
-    
-    public int getRefreshRate() {
-        return Integer.valueOf(mSharedPreferences.getString(mContext.getString(R.string.refresh_rate), "5"));
     }
     
     private SettingManager() {

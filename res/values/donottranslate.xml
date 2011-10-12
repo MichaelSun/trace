@@ -13,4 +13,5 @@
 	<string name="login_passwd">login_passwd</string>
 	
 	<string name="pref_server_ip">server_ip</string>
+	<string name="pref_refresh_rate">refresh_rate</string>
 </resources>

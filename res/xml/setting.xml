@@ -18,14 +18,14 @@
 			android:title="@string/refresh_delay"
 			android:key="@string/refresh_rate">
 		</Preference -->
-		
-        <ListPreference
-        android:key="@string/refresh_rate"
-        android:title="@string/refresh_delay"
-        android:summary="@string/dialog_title_refresh_rate"
-        android:entries="@array/entries_list_preference"
-        android:entryValues="@array/entryvalues_list_preference"
-        android:dialogTitle="@string/dialog_title_refresh_rate"/>
+
+	<ListPreference
+		android:key="@string/pref_refresh_rate"
+		android:title="@string/refresh_delay"
+		android:summary="@string/dialog_title_refresh_rate"
+		android:entries="@array/entries_list_preference"
+		android:entryValues="@array/entryvalues_list_preference"
+		android:dialogTitle="@string/dialog_title_refresh_rate" />
 		
 		<CheckBoxPreference 
 			android:title="@string/warning_tips" 

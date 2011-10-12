@@ -3,12 +3,13 @@ package com.mobile.trace.internet;
 import android.text.TextUtils;
 
 import com.mobile.trace.internet.FetchAgent.DataFetchCallback;
+import com.mobile.trace.utils.SettingManager;
 
 public class FetchRequest {
     public static final int DEVICE_LOAD_TYPE = 0x01;
     public static final int DEVICE_INFOS_TYPE = 0x02;
     
-    private static final String BASE_URL = "http://114.242.178.111/ServiceTest/BackService.asmx/";
+    private static final String BASE_URL_SUBFIX = "/ServiceTest/BackService.asmx/";
     private static final String METHOD_DEVICELOAD = "MonitorDeviceLoad";
     private static final String METHOD_DEVICEINFO_UPDATE = "EndDeviceStatusUpdate";
     
@@ -54,9 +55,11 @@ public class FetchRequest {
             mMethod = METHOD_DEVICEINFO_UPDATE;
         }
         
+        String ip = SettingManager.getInstance().getServerIP();
+        
         mType = methodType;
         mPostData = data;
-        mUrl = BASE_URL + mMethod;
+        mUrl = "http://" + ip + BASE_URL_SUBFIX + mMethod;
         mCB = cb;
     }
 }

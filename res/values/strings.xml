@@ -55,7 +55,7 @@
     <string name="trace_info_distance" formatted="false">与主控终端距离 : %s 米</string>
     
     <string name="title_send_command" formatted="false">选择要发送的指令：(终端 %s)</string>
-    <string name="title_trace_point" formatted="false">终端:%s\n手机号:%s</string>
+    <string name="title_trace_point" formatted="false">终端:%s 手机号:%s</string>
     <string name="title_trace_info_default">终端信息</string>
     <string name="titile_trace_info_list">被控终端信息</string>
     <string name="title_trace_warning">告警区域信息</string>
@@ -104,5 +104,6 @@
     
     <string name="be_controlled_tips">越界告警由被控终端触发，越界后，被控端会主动向主控端发出告警信息</string>
     <string name="controll_tips">越界告警由主控终端触发，根据主控端接收到的被控端位置信息进行判断，如果越界则告警</string>
+
 </resources>
 

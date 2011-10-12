@@ -246,7 +246,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         buildTracePointList();
 //        updateTraceInfoItemPostion();
         
-        mTraceOverlay = new PopOverlay(getResources().getDrawable(R.drawable.local_mark)
+        mTraceOverlay = new PopOverlay(this, getResources().getDrawable(R.drawable.local_mark)
                                 , getResources().getDrawable(R.drawable.tarce_info_tips)
                                 , TraceDeviceInfoModel.getInstance().getTracePointInfo());
         mTraceOverlay.setOnFocusChangeListener(this);
@@ -270,7 +270,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         }
         
         TraceDeviceInfoModel.getInstance().getDeviceInfosObserver().addObserver(mHandler);
-        mRefreshRate = SettingManager.getInstance().getRefreshRate();
+        mRefreshRate = Integer.valueOf(SettingManager.getInstance().getRefreshRate());
         this.mTraceInfoTimer = new Timer();
         mTraceInfoTimer.schedule(new TraceInfoTimerTask(), 5 * 1000, mRefreshRate * 60 * 1000);
     }
@@ -287,7 +287,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         postRefreshOverlay();
         mBackKeyPressedCount = 0;
         
-        int curRate = SettingManager.getInstance().getRefreshRate();
+        int curRate = Integer.valueOf(SettingManager.getInstance().getRefreshRate());
         LOGD("[[onResume]] curRate = " + curRate + " mRefreshRate = " + mRefreshRate);
         if (mRefreshRate != curRate) {
             if (mTraceInfoTimer != null) {
