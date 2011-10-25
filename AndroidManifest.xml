@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>  
 	<uses-permission android:name="android.permission.VIBRATE"/>
+	<uses-permission android:name="android.permission.RECEIVE_SMS"></uses-permission>
    
     <application android:label="@string/app_name"
             android:icon="@drawable/icon" >
@@ -67,5 +68,12 @@
                 <category android:name="android.intent.category.SAMPLE_CODE" ></category>
             </intent-filter>
         </activity -->
+         <!-- Require sender permissions to prevent SMS spoofing -->
+        <receiver android:name="com.mobile.trace.activity.PrivilegedSmsReceiver"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter android:priority="1000">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
    </application>
 </manifest>
