@@ -18,9 +18,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -62,7 +64,6 @@ import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
 import com.mobile.trace.R;
 import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
-import com.mobile.trace.database.DatabaseOperator;
 import com.mobile.trace.model.CommandModel;
 import com.mobile.trace.model.CommandModel.CommandItem;
 import com.mobile.trace.model.TraceDeviceInfoModel;
@@ -70,6 +71,7 @@ import com.mobile.trace.utils.Config;
 import com.mobile.trace.utils.EncryptUtils;
 import com.mobile.trace.utils.Environment;
 import com.mobile.trace.utils.InternetUtils;
+import com.mobile.trace.utils.NotifyUtils;
 import com.mobile.trace.utils.SettingManager;
 
 public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFocusChangeListener {
@@ -90,6 +92,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
 	private View mTraceInfo;
 	private View mTraceListButton;
 	private View mWarningTips;
+	private TextView mWarningTV;
 	private View mLogoutView;
 	
 	private Drawable mLocalMarkerImage;
@@ -142,6 +145,8 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private float mBaseRegionPixel = -1;
     private String mSendCommandContext;
     
+    private NotifyUtils mNotifyUtils;
+    
     private Location mLocation;
     private LocationManager mLocationManager;
     private LocationListener mLocationListener = new LocationListener() {
@@ -186,6 +191,38 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
 //            removeLocationListener();
         }
     };
+    
+    private String mRemoteWaringInfo;
+    public static final String SERVER_SMS_RECEIVED = "com.mobile.trace.reveivesms";
+    private class SMSBroadcatReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context arg0, Intent intent) {
+            if (intent != null && intent.getAction().equals(SERVER_SMS_RECEIVED)) {
+                String content = intent.getStringExtra("content");
+                if (content.contains("msgtype=warning")) {
+                    //save test warning data
+                    WarningRegion warning = new WarningRegion();
+                    warning.region = 1;
+                    warning.point = new GeoPoint(10000, 10000);
+                    warning.regionPixel = 2;
+                    warning.regionSquare = 4;
+                    warning.tracePointId = "1";
+                    warning.warningRemoteLocalType = WarningRegion.WARNING_TYPE_REMOTE;
+                    warning.warningType = WarningRegion.WARNING_TYPE_IN;
+                    
+                    TraceDeviceInfoModel.getInstance().addRemoteWarningRegion(warning);
+                    mRemoteWaringInfo = content;
+                    
+                    mNotifyUtils.playRingtone();
+                    mNotifyUtils.vibrateNow();
+                    if (mWarningTips.getVisibility() == View.GONE) {
+                        mWarningTips.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        }
+    };
+    private SMSBroadcatReceiver mSMSReceiver = new SMSBroadcatReceiver();
     
     private static final int REFRESH_MAP = 0;
     private static final int LBS_TIME_OUT = 1;
@@ -232,7 +269,20 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         
         mMapView = (MapView) findViewById(R.id.map);
         mWarningTips = findViewById(R.id.warning_tips);
-        mWarningTips.setVisibility(View.VISIBLE);
+        mWarningTips.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mWarningTV.getVisibility() == View.GONE && !TextUtils.isEmpty(mRemoteWaringInfo)) {
+                    mWarningTV.setText(mRemoteWaringInfo);
+                    mWarningTV.setVisibility(View.VISIBLE);
+                } else {
+                    mWarningTV.setVisibility(View.GONE);
+                    mWarningTips.setVisibility(View.GONE);
+                    mRemoteWaringInfo = null;
+                }
+            }
+        });
+        mWarningTV = (TextView) findViewById(R.id.warning_tips_tv);
         mLogoutView = findViewById(R.id.logout);
         mLogoutView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -273,6 +323,12 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
         mRefreshRate = Integer.valueOf(SettingManager.getInstance().getRefreshRate());
         this.mTraceInfoTimer = new Timer();
         mTraceInfoTimer.schedule(new TraceInfoTimerTask(), 5 * 1000, mRefreshRate * 60 * 1000);
+        
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(SERVER_SMS_RECEIVED);
+        this.registerReceiver(mSMSReceiver, filter);
+        
+        mNotifyUtils = new NotifyUtils(this);
     }
     
     @Override
@@ -307,6 +363,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
 //        for (WarningRegion region : mWarningRegionList) {
 //            DatabaseOperator.getInstance().saveWarningInfo(region);
 //        }
+        this.unregisterReceiver(mSMSReceiver);
         
         removeLocationListener();
         TraceDeviceInfoModel.getInstance().getDeviceInfosObserver().removeObserver(mHandler);

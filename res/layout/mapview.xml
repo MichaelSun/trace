@@ -61,6 +61,19 @@
     	android:visibility="gone">
     </ImageView>
     
+   <TextView
+   		android:id="@+id/warning_tips_tv"
+   		android:layout_width="wrap_content"
+   		android:layout_height="wrap_content"
+   		android:singleLine="true"
+   		android:textColor="#ffff0000"
+   		android:layout_marginTop="20dip"
+   		android:layout_alignParentTop="true"
+   		android:layout_toRightOf="@id/warning_tips"
+   		android:layout_marginLeft="5dip"
+   		android:visibility="gone">
+   </TextView>
+    
     <ImageView
     	android:id="@+id/logout"
     	android:layout_width="wrap_content"

@@ -120,6 +120,12 @@ public class TraceDeviceInfoModel implements
         }
     }
     
+    public void addRemoteWarningRegion(WarningRegion region) {
+        if (region != null) {
+            DatabaseOperator.getInstance().saveWarningInfo(region);
+        }
+    }
+    
     public void removeLocalWarningRegion(WarningRegion region) {
         if (region != null) {
             DatabaseOperator.getInstance().deleteWaringInfo(region);

@@ -8,6 +8,9 @@ import android.telephony.SmsMessage;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.android.maps.GeoPoint;
+import com.mobile.trace.activity.WarningRegionOverlay.WarningRegion;
+import com.mobile.trace.model.TraceDeviceInfoModel;
 import com.mobile.trace.utils.Config;
 
 public class PrivilegedSmsReceiver extends BroadcastReceiver {
@@ -30,6 +33,12 @@ public class PrivilegedSmsReceiver extends BroadcastReceiver {
                         if (content.contains("msgtype") && content.contains("msgvalue")) {
                             if (DEBUG) Log.d(TAG, "[[PrivilegedSmsReceiver::onReceive]] receive the mesage " +
                                     " for command control, MSG = " + content);
+
+                            Intent send = new Intent();
+                            send.setAction(MapViewActivity.SERVER_SMS_RECEIVED);
+                            send.putExtra("content", content);
+                            arg0.sendBroadcast(send);
+                            
                             this.abortBroadcast();
                             break;
                         }
