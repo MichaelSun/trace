@@ -162,7 +162,7 @@ public class StartActivity extends Activity {
             
             try {
 //                DeviceLoadModel.getInstance().getDeviceInfo();
-                Thread.sleep(1000);
+//                Thread.sleep(1000);
             } catch (Exception e) {
             }
             

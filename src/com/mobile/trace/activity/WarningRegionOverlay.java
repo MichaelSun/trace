@@ -38,6 +38,10 @@ public class WarningRegionOverlay extends ItemizedOverlay<OverlayItem> {
         
         public int warningRemoteLocalType;
         
+        public long time;
+        
+        public String phone = "-1";
+        
         public WarningRegion() {
         }
         

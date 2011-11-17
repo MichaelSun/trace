@@ -8,6 +8,8 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Vibrator;
 
+import com.mobile.trace.R;
+
 public class NotifyUtils {
    private static final String TAG = "NoticeUtils";
     

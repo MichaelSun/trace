@@ -30,6 +30,7 @@ public class PrivilegedSmsReceiver extends BroadcastReceiver {
                     messages[i] = SmsMessage.createFromPdu((byte[]) objArray[i]);
                     String content = messages[i].getMessageBody();
                     if (!TextUtils.isEmpty(content)) {
+                        content = content.toLowerCase();
                         if (content.contains("msgtype") && content.contains("msgvalue")) {
                             if (DEBUG) Log.d(TAG, "[[PrivilegedSmsReceiver::onReceive]] receive the mesage " +
                                     " for command control, MSG = " + content);

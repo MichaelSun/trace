@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -150,22 +151,16 @@ public class WarningListActivity extends Activity {
 
     }
     
-    protected ArrayList<String> getData() {
-        ArrayList<String> myData = new ArrayList<String>();
-    	int iLen = mWarningList.size();
-    	for(int i = 0; i < iLen; i++) {
-    		myData.add("警告区域信息：" + mWarningList.get(i).point.toString()
-                       +  ";被控终端ID：" + mWarningList.get(i).tracePointId);
-    	}
-    	return myData;
+    protected ArrayList<WarningRegion> getData() {
+        return mWarningList;
     }
     
-    class InfoAdapter extends ArrayAdapter<String> {
+    class InfoAdapter extends ArrayAdapter<WarningRegion> {
         private int mResourceID;
         private Context mContext;
         private LayoutInflater mInflater;
         
-        InfoAdapter(Context context, int resourceId, ArrayList<String> data) {
+        InfoAdapter(Context context, int resourceId, ArrayList<WarningRegion> data) {
             super(context, resourceId, data);
             mResourceID = resourceId;
             mContext = context;
@@ -178,15 +173,27 @@ public class WarningListActivity extends Activity {
                 ret = mInflater.inflate(mResourceID, null);
             }
             
-            String info = getItem(position);
-            String[] infos = info.split(";");
-            TextView tv = (TextView) ret.findViewById(R.id.info1);
-            tv.setText(infos[0]);
-            tv = (TextView) ret.findViewById(R.id.info2);
-            tv.setText(infos[1]);
+            WarningRegion info = getItem(position);
+            TextView tv = (TextView) ret.findViewById(R.id.time);
+            String time = "";
+            if (info.time != 0) {
+                time = formatTime(info.time);
+            }
+            tv.setText(String.format(getString(R.string.time), time));
+            tv = (TextView) ret.findViewById(R.id.id);
+            tv.setText(String.format(getString(R.string.id), info.tracePointId));
+            String phone = "";
+            if (info.phone != null && !info.phone.equals("-1")) {
+                phone = info.phone;
+            }
+            tv = (TextView) ret.findViewById(R.id.phone);
+            tv.setText(String.format(getString(R.string.phone), phone));
             
             return ret;
         }
     }
     
+    private static String formatTime(long dateTaken) {
+        return DateFormat.format("yyyy-MM-dd hh:mm:ss", dateTaken).toString();
+    }
 }

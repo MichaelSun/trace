@@ -72,7 +72,7 @@ public class TraceDeviceInfoModel implements
     }
     
     public void fetchTraceInfoFromServer() {
-        String testData = "{\"MsgType\":2,\"MsgValue\":{\"IMSI\":\"22222222222222\"}}";
+        String testData = "{\"MsgType\":2,\"MsgValue\":{\"IMSI\":\"11111111112222222222\"}}";
         FetchRequest rq = FetchRequest.create(FetchRequest.DEVICE_INFOS_TYPE, testData, this);
         
         FetchAgent.getInstance().addRequest(rq);

@@ -144,6 +144,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private int mRefreshRate;
     private float mBaseRegionPixel = -1;
     private String mSendCommandContext;
+    private byte[] mSendCommandByte;
     
     private NotifyUtils mNotifyUtils;
     
@@ -194,30 +195,42 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     
     private String mRemoteWaringInfo;
     public static final String SERVER_SMS_RECEIVED = "com.mobile.trace.reveivesms";
+
     private class SMSBroadcatReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context arg0, Intent intent) {
+            LOGD("[[onReceive]] action = " + intent.getAction());
             if (intent != null && intent.getAction().equals(SERVER_SMS_RECEIVED)) {
                 String content = intent.getStringExtra("content");
-                if (content.contains("msgtype=warning")) {
-                    //save test warning data
-                    WarningRegion warning = new WarningRegion();
-                    warning.region = 1;
-                    warning.point = new GeoPoint(10000, 10000);
-                    warning.regionPixel = 2;
-                    warning.regionSquare = 4;
-                    warning.tracePointId = "1";
-                    warning.warningRemoteLocalType = WarningRegion.WARNING_TYPE_REMOTE;
-                    warning.warningType = WarningRegion.WARNING_TYPE_IN;
-                    
-                    TraceDeviceInfoModel.getInstance().addRemoteWarningRegion(warning);
-                    mRemoteWaringInfo = content;
-                    
-                    mNotifyUtils.playRingtone();
-                    mNotifyUtils.vibrateNow();
-                    if (mWarningTips.getVisibility() == View.GONE) {
-                        mWarningTips.setVisibility(View.VISIBLE);
-                    }
+                // save test warning data
+                WarningRegion warning = new WarningRegion();
+                warning.region = 1;
+                warning.point = new GeoPoint(10000, 10000);
+                warning.regionPixel = 2;
+                warning.regionSquare = 4;
+                warning.tracePointId = "1";
+                warning.warningRemoteLocalType = WarningRegion.WARNING_TYPE_REMOTE;
+                warning.warningType = WarningRegion.WARNING_TYPE_IN;
+                warning.time = System.currentTimeMillis();
+
+                TraceDeviceInfoModel.getInstance().addRemoteWarningRegion(warning);
+                mRemoteWaringInfo = content;
+
+                LOGD("[[onRecive]] before play sound >>>>>>>>>");
+
+                mNotifyUtils.playRingtone();
+                mNotifyUtils.vibrateNow();
+                if (mWarningTips.getVisibility() == View.GONE) {
+                    mWarningTips.setVisibility(View.VISIBLE);
+                    mWarningTips.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intentWarning = new Intent();
+                            intentWarning.setClass(MapViewActivity.this, WarningListActivity.class);
+                            intentWarning.putExtra(WarningViewActivity.TRACE_POINT_WARNING, true);
+                            startActivityForResult(intentWarning, Config.WARNING_LOCATE_REQUEST);
+                        }
+                    });
                 }
             }
         }
@@ -936,6 +949,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
     private void showSingleSendCommandDialog() {
         String[] commands = getResources().getStringArray(R.array.commands);
         mSendCommandContext = commands[0];
+        mSendCommandByte = null;
         AlertDialog dialog = new AlertDialog.Builder(this)
                         .setTitle(R.string.title_command_send)
                         .setSingleChoiceItems(R.array.commands
@@ -944,6 +958,7 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                                         public void onClick(DialogInterface dialog, int whichButton) {
                                             String[] commands = getResources().getStringArray(R.array.commands);
                                             mSendCommandContext = commands[whichButton];
+                                            mSendCommandByte = getCommandByte(whichButton);
                                         }
                         })
                         .setPositiveButton(R.string.btn_send
@@ -953,8 +968,12 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
                                             item.traceId = mCurrentTraceInfo.id;
                                             item.command = mSendCommandContext;
                                             item.time = String.valueOf(System.currentTimeMillis());
+                                            if (mSendCommandByte != null) {
+                                                item.command_byte = mSendCommandByte;
+                                            }
                                             CommandModel.getInstance().addOneComamndItem(item);
                                             mSendCommandContext = null;
+                                            mSendCommandByte = null;
                                             
                                             Toast.makeText(MapViewActivity.this, getString(R.string.command_send_success), Toast.LENGTH_SHORT).show();
                                         }
@@ -970,6 +989,23 @@ public class MapViewActivity extends MapActivity implements ItemizedOverlay.OnFo
             dialog.setTitle(String.format(getString(R.string.title_send_command), mCurrentTraceInfo.id));
         }
         dialog.show();
+    }
+    
+    private byte[] getCommandByte(int index) {
+        switch (index) {
+        case 0:
+            return Config.COMMAND_GPS;
+        case 1:
+            return Config.COMMAND_NETWORK;
+        case 2:
+            return Config.COMMAND_CLOSE_UPDATE;
+        case 3:
+            return Config.COMMAND_UPDATE_NOW;
+        case 4:
+            return Config.COMMAND_UPDATE_DELAY;
+        }
+        
+        return null;
     }
     
     private void showWarningRegionDialog(final boolean hideOption) {

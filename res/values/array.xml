@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="commands">
-	<item>指令1</item>
-	<item>指令2</item>
-	<item>指令3</item>
-	<item>指令4</item>
+	<item>GPS采集数据</item>
+	<item>基站采集数据</item>
+	<item>关闭数据采集</item>
+	<item>立刻更新数据</item>
+	<item>10分钟更新数据</item>
 	</string-array>
 	
 	

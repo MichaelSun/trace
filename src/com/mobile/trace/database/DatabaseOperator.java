@@ -63,6 +63,8 @@ public class DatabaseOperator {
                     String type = cursor.getString(cursor.getColumnIndex(Config.WARNING_TABLE_TYPE));
                     String traceid = cursor.getString(cursor.getColumnIndex(Config.WARNING_TABLE_TRACEID));
                     String rlType = cursor.getString(cursor.getColumnIndex(Config.WARNING_TABLE_RLTYPE));
+                    String time = cursor.getString(cursor.getColumnIndex(Config.WARNING_TABLE_TIME));
+                    String phone = cursor.getString(cursor.getColumnIndex(Config.WARNING_TABLE_PHONE));
 
                     String[] splited = point.split(Config.SPLITOR);
                     wRegion.point = new GeoPoint(Integer.valueOf(splited[0]), Integer.valueOf(splited[1]));
@@ -70,6 +72,8 @@ public class DatabaseOperator {
                     wRegion.warningType = Integer.valueOf(type);
                     wRegion.tracePointId = traceid;
                     wRegion.warningRemoteLocalType = Integer.valueOf(rlType);
+                    wRegion.time = Long.valueOf(time);
+                    wRegion.phone = phone;
                     
                     ret.add(wRegion);
                     
@@ -107,6 +111,8 @@ public class DatabaseOperator {
         values.put(Config.WARNING_TABLE_TYPE, String.valueOf(region.warningType));
         values.put(Config.WARNING_TABLE_TRACEID, String.valueOf(region.tracePointId));
         values.put(Config.WARNING_TABLE_RLTYPE, String.valueOf(region.warningRemoteLocalType));
+        values.put(Config.WARNING_TABLE_TIME, String.valueOf(System.currentTimeMillis()));
+        values.put(Config.WARNING_TABLE_PHONE, region.phone);
 
         String selection = Config.WARNING_TABLE_POINT + "=? AND " + Config.WARNING_TABLE_TRACEID + "=?";
         String[] selectionArgs = new String[]{geoInfo, String.valueOf(region.tracePointId) };
@@ -147,6 +153,7 @@ public class DatabaseOperator {
                     item.traceId = cursor.getString(cursor.getColumnIndex(Config.COMMAND_TABLE_TRACEID));
                     item.command = cursor.getString(cursor.getColumnIndex(Config.COMMAND_TABLE_COMMAND));
                     item.time = cursor.getString(cursor.getColumnIndex(Config.COMMAND_TABLE_TIME));
+                    item.phoneNum = cursor.getString(cursor.getColumnIndex(Config.COMMAND_TABLE_PHONE));
                     
                     ret.add(item);
                     LOGD("[[queryCommandLogList]] command item = " + item.toString());
@@ -174,11 +181,12 @@ public class DatabaseOperator {
         mDBProxy.delete(Config.COMMAND_TABLE_NAME, selection, selectionArgs);
     }
      
-    public void saveCommand(String traceId, String command, String time) {
+    public void saveCommand(String traceId, String command, String time, String phone) {
         ContentValues values = new ContentValues();
         values.put(Config.COMMAND_TABLE_TRACEID, traceId);
         values.put(Config.COMMAND_TABLE_COMMAND, command);
         values.put(Config.COMMAND_TABLE_TIME, time);
+        values.put(Config.COMMAND_TABLE_PHONE, phone);
 
         mDBProxy.insert(Config.COMMAND_TABLE_NAME, values);
     }
@@ -259,7 +267,7 @@ public class DatabaseOperator {
                 + String.valueOf(info.geoPoint.getLongitudeE6());
         values.put(Config.TRACE_INFO_POINT, geoInfo);
 
-        mDBProxy.insert(Config.COMMAND_TABLE_NAME, values);
+        mDBProxy.insert(Config.TRACE_INFO_TABLE_NAME, values);
     }
     
     private DatabaseOperator() {

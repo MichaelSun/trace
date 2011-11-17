@@ -1,8 +1,12 @@
 package com.mobile.trace.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import android.util.Log;
 
 import com.mobile.trace.database.DatabaseOperator;
+import com.mobile.trace.utils.Config;
 
 public class CommandModel {
 
@@ -10,11 +14,16 @@ public class CommandModel {
         public String traceId;
         public String command;
         public String time;
+        public String phoneNum;
         
+        public byte[] command_byte;
+
         @Override
         public String toString() {
-            return "CommandItem [traceId=" + traceId + ", command=" + command + ", time=" + time + "]";
+            return "CommandItem [traceId=" + traceId + ", command=" + command + ", time=" + time + ", command_byte="
+                    + Arrays.toString(command_byte) + "]";
         }
+
     }
     
     private static CommandModel gCommandModel;
@@ -34,8 +43,10 @@ public class CommandModel {
     
     public void addOneComamndItem(CommandItem item) {
         synchronized (mCommadItemList) {
+            LOGD("[[addOneCommandItem]] send command item = " + item.toString());
+            
             mCommadItemList.add(item);
-            DatabaseOperator.getInstance().saveCommand(item.traceId, item.command, item.time);
+            DatabaseOperator.getInstance().saveCommand(item.traceId, item.command, item.time, item.phoneNum);
         }
     }
     
@@ -57,4 +68,11 @@ public class CommandModel {
     private CommandModel() {
         mCommadItemList = DatabaseOperator.getInstance().queryCommandLogList();
     } 
+    
+    private final void LOGD(String msg) {
+        if (Config.DEBUG) {
+            String tag = this.getClass().getName();
+            Log.d(tag, msg);
+        }
+    }
 }

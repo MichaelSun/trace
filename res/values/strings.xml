@@ -105,5 +105,12 @@
     <string name="be_controlled_tips">越界告警由被控终端触发，越界后，被控端会主动向主控端发出告警信息</string>
     <string name="controll_tips">越界告警由主控终端触发，根据主控端接收到的被控端位置信息进行判断，如果越界则告警</string>
 
+	<string name="command_time" formatted="false">发送时间 : %s</string>   
+	<string name="command_target" formatted="false">被控终端 : ID,%s : %s</string>   
+	<string name="command_command" formatted="false">指令 : %s</string>
+	
+	<string name="time" formatted="false">告警时间:%s</string>
+	<string name="id" formatted="false">ID:%s</string>
+	<string name="phone" formatted="false">手机:%s</string>
 </resources>
 

@@ -1,22 +1,21 @@
 package com.mobile.trace.activity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
+import android.text.format.DateFormat;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.mobile.trace.R;
 import com.mobile.trace.model.CommandModel;
+import com.mobile.trace.model.CommandModel.CommandItem;
 
 public class CommandListAcitvity extends ListActivity {
 	
@@ -34,66 +33,92 @@ public class CommandListAcitvity extends ListActivity {
             mCommandLog = false;
         }
         
-        setListAdapter(new SimpleAdapter(this, getData(),
-                android.R.layout.simple_list_item_1, new String[] { "title" },
-                new int[] { android.R.id.text1 }));
+        if (mCommandLog) {
+            setListAdapter(new CommandAdapter(this, R.layout.command_item, CommandModel.getInstance().getCommandList()));
+        }
         
-        showTraceInfoDialog() ;
-    } 
-    
-    private void showTraceInfoDialog() {
-    	mCommandInfoDialog = new AlertDialog.Builder(this)
-                                    .setTitle(R.string.command_list)
-                                    .setNegativeButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int whichButton) {
-                                        }
-                                    })
-                                    .create();
-        ListView listView = getListView();
-        //listView.setAdapter(new TraceInfoAdapter(this, Environment.tracePointList));
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position < CommandModel.getInstance().getCommandList().size()) {
-                	StringBuilder builder = new StringBuilder();
-                	String strCommandInfo = CommandModel.getInstance().getCommandList().get(position).command;
-                	builder.append(strCommandInfo);
-//                	builder.append(String.format(getString(R.string.trace_info_id)
-//                             , tracePointInfo.id) + "\n");
-//                	builder.append(String.format(getString(R.string.trace_info_phonenumber)
-//                            , tracePointInfo.phoneNumber + "\n"));
-//                	builder.append(String.format(getString(R.string.trace_info_point)
-//                            , tracePointInfo.geoPoint) + "\n");
-//                	builder.append(String.format(getString(R.string.trace_info_distance), "0"));
-//                	builder.append("终端ID：" + tracePointInfo.id + "\n");
-//                	builder.append("电话：" + tracePointInfo.phoneNumber + "\n");
-//                	builder.append("终端经纬度：" + tracePointInfo.geoPoint + "\n");
-//                	builder.append("与主控终端距离：" + "0");
-                	mCommandInfoDialog.setMessage(builder.toString());
-//                    mTraceInfoDialog.dismiss();
-//                    TracePointInfo info = Environment.tracePointList.get(position);
-//                    showTraceInfoDialog(info);
-                	mCommandInfoDialog.show();
-                }
-            }
-        });
+//        showTraceInfoDialog() ;
     }
     
-    protected List getData() {
-    	List<Map> myData = new ArrayList<Map>();
-    	if (mCommandLog) {
-            int iLen = CommandModel.getInstance().getCommandList().size();
-            for (int i = 0; i < iLen; i++) {
-                addItem(myData, "命令：" + CommandModel.getInstance().getCommandList().get(i).command, null);
-            }
-    	} else {
-    	}
-    	return myData;
+    private class CommandAdapter extends ArrayAdapter<CommandItem> {
+        private int mResourceID;
+        private Context mContext;
+        private LayoutInflater mInflater;
+        
+        CommandAdapter(Context context, int resourceId, ArrayList<CommandItem> data) {
+            super(context, resourceId, data);
+            mResourceID = resourceId;
+            mContext = context;
+            mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+        
+        public View  getView(int position, View convertView, ViewGroup parent) {
+            View ret = mInflater.inflate(mResourceID, null);
+            TextView time = (TextView) ret.findViewById(R.id.time);
+            TextView target = (TextView) ret.findViewById(R.id.target);
+            TextView command = (TextView) ret.findViewById(R.id.command);
+            
+            CommandItem item = getItem(getCount() - 1 - position);
+            
+            time.setText(String.format(getString(R.string.command_time), formatTime(Long.valueOf(item.time))));
+            target.setText(String.format(getString(R.string.command_target), item.traceId
+                    , (item.phoneNum != null ? item.phoneNum : "")));
+            command.setText(String.format(getString(R.string.command_command), item.command));
+            
+            return ret;
+        }
     }
     
-    protected void addItem(List<Map> data, String name, Intent intent) {
-        Map<String, Object> temp = new HashMap<String, Object>();
-        temp.put("title", name);
-        temp.put("intent", intent);
-        data.add(temp);
+//    private void showTraceInfoDialog() {
+//    	mCommandInfoDialog = new AlertDialog.Builder(this)
+//                                    .setTitle(R.string.command_list)
+//                                    .setNegativeButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
+//                                        public void onClick(DialogInterface dialog, int whichButton) {
+//                                        }
+//                                    })
+//                                    .create();
+//        ListView listView = getListView();
+//        //listView.setAdapter(new TraceInfoAdapter(this, Environment.tracePointList));
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                if (position < CommandModel.getInstance().getCommandList().size()) {
+//                	StringBuilder builder = new StringBuilder();
+//                	String strCommandInfo = CommandModel.getInstance().getCommandList().get(position).command;
+//                	builder.append(strCommandInfo);
+////                	builder.append(String.format(getString(R.string.trace_info_id)
+////                             , tracePointInfo.id) + "\n");
+////                	builder.append(String.format(getString(R.string.trace_info_phonenumber)
+////                            , tracePointInfo.phoneNumber + "\n"));
+////                	builder.append(String.format(getString(R.string.trace_info_point)
+////                            , tracePointInfo.geoPoint) + "\n");
+////                	builder.append(String.format(getString(R.string.trace_info_distance), "0"));
+////                	builder.append("终端ID：" + tracePointInfo.id + "\n");
+////                	builder.append("电话：" + tracePointInfo.phoneNumber + "\n");
+////                	builder.append("终端经纬度：" + tracePointInfo.geoPoint + "\n");
+////                	builder.append("与主控终端距离：" + "0");
+//                	mCommandInfoDialog.setMessage(builder.toString());
+////                    mTraceInfoDialog.dismiss();
+////                    TracePointInfo info = Environment.tracePointList.get(position);
+////                    showTraceInfoDialog(info);
+//                	mCommandInfoDialog.show();
+//                }
+//            }
+//        });
+//    }
+    
+//    public static String formatTime(String time) {
+//        try {
+//            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            Date date = df.parse(time);
+//            return date.toString();
+//        }  catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        
+//        return null;
+//    }
+    
+    private static String formatTime(long dateTaken) {
+        return DateFormat.format("yyyy-MM-dd hh:mm:ss", dateTaken).toString();
     }
 }
